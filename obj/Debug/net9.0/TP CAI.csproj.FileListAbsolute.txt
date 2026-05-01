@@ -1,0 +1,34 @@
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\bin\Debug\net9.0\appsettings.Development.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\bin\Debug\net9.0\appsettings.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\bin\Debug\net9.0\TP CAI.staticwebassets.endpoints.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\bin\Debug\net9.0\TP CAI.exe
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\bin\Debug\net9.0\TP CAI.deps.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\bin\Debug\net9.0\TP CAI.runtimeconfig.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\bin\Debug\net9.0\TP CAI.dll
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\bin\Debug\net9.0\TP CAI.pdb
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\bin\Debug\net9.0\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\bin\Debug\net9.0\Microsoft.OpenApi.dll
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.csproj.AssemblyReference.cache
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\rpswa.dswa.cache.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.AssemblyInfoInputs.cache
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.AssemblyInfo.cs
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.csproj.CoreCompileInputs.cache
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.sourcelink.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\rjimswa.dswa.cache.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\scopedcss\bundle\TP CAI.styles.css
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\staticwebassets.build.json.cache
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\staticwebassets.development.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\staticwebassets.build.endpoints.json
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.csproj.Up2Date
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.dll
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\refint\TP CAI.dll
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.pdb
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\TP CAI.genruntimeconfig.cache
+C:\Users\Tecna\OneDrive\Documents\GitHub\TP-CAI-GRUPO-26\TP CAI\obj\Debug\net9.0\ref\TP CAI.dll
