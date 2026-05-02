@@ -1,10 +1,25 @@
+using Products.API.DTOs.Requests;
 using Products.API.DTOs.Responses;
+using Products.API.Exceptions;
 using Products.API.Models;
 
 namespace Products.API.Services;
 
 public class ProductService
 {
+    private static ProductResponse MapToResponse(Product product)
+    {
+        return new ProductResponse
+        {
+            Id = product.Id,
+            Nombre = product.Nombre,
+            Descripcion = product.Descripcion,
+            Precio = product.Precio,
+            Stock = product.Stock,
+            Categoria = product.Categoria,
+            FechaCreacion = product.FechaCreacion
+        };
+    }
     private readonly List<Product> _products =
     [
         new()
@@ -56,5 +71,34 @@ public class ProductService
                 Categoria = product.Categoria,
                 FechaCreacion = product.FechaCreacion
             });
+    }
+    public ProductResponse Create(CreateProductRequest request)
+    {
+        var exists = _products.Any(p =>
+            p.DeletedAt == null &&
+            p.Nombre.Equals(request.Nombre, StringComparison.OrdinalIgnoreCase) &&
+            p.Categoria.Equals(request.Categoria, StringComparison.OrdinalIgnoreCase));
+
+        if (exists)
+            throw new ConflictException(
+                "PRD-003",
+                "Ya existe un producto con ese nombre en la categoría."
+            );
+
+        var product = new Product
+        {
+            Id = Guid.NewGuid(),
+            Nombre = request.Nombre,
+            Descripcion = request.Descripcion,
+            Precio = request.Precio,
+            Stock = request.Stock,
+            Categoria = request.Categoria,
+            FechaCreacion = DateTime.UtcNow,
+            DeletedAt = null
+        };
+
+        _products.Add(product);
+
+        return MapToResponse(product);
     }
 }
