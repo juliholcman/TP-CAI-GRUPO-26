@@ -8,10 +8,12 @@ builder.Services.AddSingleton<ProductService>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.MapOpenApi();
+
+app.UseSwaggerUI(options =>
 {
-    app.MapOpenApi();
-}
+    options.SwaggerEndpoint("/openapi/v1.json", "Products API");
+});
 
 app.UseHttpsRedirection();
 app.MapControllers();
