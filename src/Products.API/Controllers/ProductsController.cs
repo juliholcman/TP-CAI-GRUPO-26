@@ -21,4 +21,15 @@ public class ProductsController : ControllerBase
     {
         return Ok(_productService.GetAll());
     }
+
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public ActionResult<ProductResponse> GetById(Guid id)
+    {
+        throw new Exception("Me rompí a propósito para probar el 500");
+
+        return Ok(_productService.GetById(id));
+    }
 }
