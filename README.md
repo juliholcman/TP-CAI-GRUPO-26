@@ -1,6 +1,81 @@
-# TP-CAI-GRUPO-26
+# ECommerce
 
+Solucion migrada desde un WebAPI monolitico hacia cinco microservicios WebAPI independientes en .NET 9.
 
+## Estructura
 
-Este es el archivo README del proyecto.
+```text
+ECommerce.sln
+src/
+  Products.API/
+  Users.API/
+  Orders.API/
+  Cart.API/
+  Notifications.API/
+docs/
+README.md
+```
 
+Cada microservicio contiene:
+
+```text
+Controllers/
+Models/
+DTOs/
+  Requests/
+  Responses/
+Services/
+Exceptions/
+ExceptionHandlers/
+logs/
+Program.cs
+appsettings.json
+appsettings.Development.json
+```
+
+## Uso local
+
+El proyecto apunta a .NET 9. Si no tenes el SDK instalado en macOS:
+
+```bash
+curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+bash /tmp/dotnet-install.sh --channel 9.0 --install-dir "$HOME/.dotnet" --architecture arm64
+```
+
+Comandos utiles:
+
+```bash
+./scripts/project.sh restore
+./scripts/project.sh build
+./scripts/project.sh run Products.API
+./scripts/project.sh run Users.API
+./scripts/project.sh run Orders.API
+./scripts/project.sh run Cart.API
+./scripts/project.sh run Notifications.API
+```
+
+Tambien se puede usar `dotnet` directamente:
+
+```bash
+dotnet restore ECommerce.sln
+dotnet build ECommerce.sln
+dotnet run --project src/Products.API/Products.API.csproj
+dotnet run --project src/Users.API/Users.API.csproj
+dotnet run --project src/Orders.API/Orders.API.csproj
+dotnet run --project src/Cart.API/Cart.API.csproj
+dotnet run --project src/Notifications.API/Notifications.API.csproj
+```
+
+## Migracion
+
+El WebAPI monolitico original solo contenia el endpoint de ejemplo `weatherforecast`; no habia codigo de dominio para mover. Por eso la migracion realizada es estructural y no agrega logica de negocio nueva.
+
+Mapa previsto para futuros archivos de dominio:
+
+```text
+Productos       -> src/Products.API/
+Usuarios        -> src/Users.API/
+Ordenes         -> src/Orders.API/
+Carrito         -> src/Cart.API/
+Notificaciones  -> src/Notifications.API/
+```
