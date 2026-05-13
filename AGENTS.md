@@ -2,7 +2,7 @@
 
 This project must follow the assignment contract exactly.
 
-- Build each API as a .NET 8 REST API.
+- Build each API as a .NET 9 REST API.
 - Use the persistence library provided by the course only from the Services layer.
 - Do not introduce EF Core, DbContext, migrations, or custom persistence unless explicitly requested.
 
