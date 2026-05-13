@@ -29,7 +29,7 @@ Do not return ad-hoc error shapes.
 
 ## Exception handling
 
-Use .NET 8 IExceptionHandler.
+Use .NET 9 IExceptionHandler.
 
 Required:
 - register handlers with builder.Services.AddExceptionHandler<...>()
