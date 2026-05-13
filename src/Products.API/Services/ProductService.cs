@@ -1,4 +1,5 @@
 using Products.API.DTOs.Responses;
+using Products.API.Exceptions;
 using Products.API.Models;
 
 namespace Products.API.Services;
@@ -56,5 +57,25 @@ public class ProductService
                 Categoria = product.Categoria,
                 FechaCreacion = product.FechaCreacion
             });
+    }
+
+    public ProductResponse GetById(Guid id)
+    {
+        var product = _products.FirstOrDefault(p => p.Id == id && p.DeletedAt is null);
+        if (product is null)
+        {
+            throw new NotFoundException("PRD-001", "Producto no encontrado.");
+        }
+
+        return new ProductResponse
+        {
+            Id = product.Id,
+            Nombre = product.Nombre,
+            Descripcion = product.Descripcion,
+            Precio = product.Precio,
+            Stock = product.Stock,
+            Categoria = product.Categoria,
+            FechaCreacion = product.FechaCreacion
+        };
     }
 }
