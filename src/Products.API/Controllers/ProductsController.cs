@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
+using Products.API.DTOs.Requests;
 using Products.API.DTOs.Responses;
 using Products.API.Services;
 
@@ -28,8 +29,18 @@ public class ProductsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public ActionResult<ProductResponse> GetById(Guid id)
     {
-        throw new Exception("Me rompí a propósito para probar el 500");
-
         return Ok(_productService.GetById(id));
+    }
+
+    [HttpPost]
+    [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public ActionResult<ProductResponse> Create([FromBody] CreateProductRequest request)
+    {
+        var response = _productService.Create(request);
+
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 }
