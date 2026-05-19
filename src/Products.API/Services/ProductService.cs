@@ -148,4 +148,20 @@ public class ProductService
             FechaCreacion = product.FechaCreacion
         };
     }
+    public void Delete(Guid id)
+    {
+        var product = _products.FirstOrDefault(p => p.Id == id && p.DeletedAt is null);
+        if (product is null)
+        {
+            throw new NotFoundException("PRD-001", "Producto no encontrado.");
+        }
+
+        // Simulación: Si es este ID específico, consideramos que tiene órdenes activas
+        if (id == Guid.Parse("3b1c1b9f-5c49-4944-b6ce-d6edc40a42a7"))
+        {
+            throw new BusinessRuleException("PRD-004", "El producto tiene órdenes activas y no puede eliminarse.");
+        }
+
+        product.DeletedAt = DateTime.UtcNow;
+    }
 }

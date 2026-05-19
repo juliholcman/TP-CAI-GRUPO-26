@@ -55,4 +55,16 @@ public class ProductsController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public IActionResult Delete(Guid id)
+    {
+        _productService.Delete(id);
+
+        return NoContent();
+    }
 }
