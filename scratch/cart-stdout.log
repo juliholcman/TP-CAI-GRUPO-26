@@ -1,0 +1,217 @@
+Usando la configuración de inicio de src\Cart.API\Properties\launchSettings.json...
+[22:42:43 INF] Now listening on: http://localhost:61017
+[22:42:43 INF] Application started. Press Ctrl+C to shut down.
+[22:42:43 INF] Hosting environment: Development
+[22:42:43 INF] Content root path: C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API
+[22:42:50 INF] Request starting HTTP/1.1 GET http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6 - null null
+[22:42:50 WRN] Failed to determine the https port for redirect.
+[22:42:50 INF] Executing endpoint 'Cart.API.Controllers.CartController.GetCart (Cart.API)'
+[22:42:50 INF] Route matched with {action = "GetCart", controller = "Cart"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.ActionResult`1[Cart.API.DTOs.Responses.CartResponse] GetCart(System.Guid) on controller Cart.API.Controllers.CartController (Cart.API).
+[22:42:50 INF] Executed action Cart.API.Controllers.CartController.GetCart (Cart.API) in 41.9811ms
+[22:42:50 INF] Executed endpoint 'Cart.API.Controllers.CartController.GetCart (Cart.API)'
+[22:42:50 ERR] An unhandled exception has occurred while executing the request.
+Cart.API.Exceptions.NotFoundException: Carrito no encontrado.
+   at Cart.API.Services.CartService.GetCart(Guid userId) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Services\CartService.cs:line 28
+   at Cart.API.Controllers.CartController.GetCart(Guid userId) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Controllers\CartController.cs:line 40
+   at lambda_method1(Closure, Object, Object[])
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+[22:42:50 WRN] Cart API domain error CRT-001 with correlation id 0HNLVFSBF2762:00000001
+Cart.API.Exceptions.NotFoundException: Carrito no encontrado.
+   at Cart.API.Services.CartService.GetCart(Guid userId) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Services\CartService.cs:line 28
+   at Cart.API.Controllers.CartController.GetCart(Guid userId) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Controllers\CartController.cs:line 40
+   at lambda_method1(Closure, Object, Object[])
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+[22:42:50 INF] Request finished HTTP/1.1 GET http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6 - 404 null application/json; charset=utf-8 387.4702ms
+[22:42:50 INF] Request starting HTTP/1.1 POST http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items - application/json 83
+[22:42:50 INF] Executing endpoint 'Cart.API.Controllers.CartController.AddItem (Cart.API)'
+[22:42:50 INF] Route matched with {action = "AddItem", controller = "Cart"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Cart.API.DTOs.Responses.CartResponse]] AddItem(System.Guid, Cart.API.DTOs.Requests.AddCartItemRequest) on controller Cart.API.Controllers.CartController (Cart.API).
+[22:42:50 INF] Executed action Cart.API.Controllers.CartController.AddItem (Cart.API) in 63.6794ms
+[22:42:50 INF] Executed endpoint 'Cart.API.Controllers.CartController.AddItem (Cart.API)'
+[22:42:50 ERR] An unhandled exception has occurred while executing the request.
+Cart.API.Exceptions.ValidationException: Cantidad inválida.
+   at Cart.API.Services.CartService.AddItemAsync(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Services\CartService.cs:line 38
+   at Cart.API.Controllers.CartController.AddItem(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Controllers\CartController.cs:line 63
+   at lambda_method7(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+[22:42:50 WRN] Cart API domain error CRT-004 with correlation id 0HNLVFSBF2762:00000002
+Cart.API.Exceptions.ValidationException: Cantidad inválida.
+   at Cart.API.Services.CartService.AddItemAsync(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Services\CartService.cs:line 38
+   at Cart.API.Controllers.CartController.AddItem(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Controllers\CartController.cs:line 63
+   at lambda_method7(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+[22:42:50 INF] Request finished HTTP/1.1 POST http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items - 400 null application/json; charset=utf-8 162.0163ms
+[22:42:50 INF] Request starting HTTP/1.1 POST http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items - application/json 83
+[22:42:50 INF] Executing endpoint 'Cart.API.Controllers.CartController.AddItem (Cart.API)'
+[22:42:50 INF] Route matched with {action = "AddItem", controller = "Cart"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Cart.API.DTOs.Responses.CartResponse]] AddItem(System.Guid, Cart.API.DTOs.Requests.AddCartItemRequest) on controller Cart.API.Controllers.CartController (Cart.API).
+[22:42:50 INF] Start processing HTTP request GET http://localhost:61009/api/products/45977d90-7208-4204-b88e-74925e3128f7
+[22:42:50 INF] Sending HTTP request GET http://localhost:61009/api/products/45977d90-7208-4204-b88e-74925e3128f7
+[22:42:51 INF] Received HTTP response headers after 434.2916ms - 404
+[22:42:51 INF] End processing HTTP request after 455.0135ms - 404
+[22:42:51 INF] Executed action Cart.API.Controllers.CartController.AddItem (Cart.API) in 488.2732ms
+[22:42:51 INF] Executed endpoint 'Cart.API.Controllers.CartController.AddItem (Cart.API)'
+[22:42:51 ERR] An unhandled exception has occurred while executing the request.
+Cart.API.Exceptions.NotFoundException: Producto no encontrado.
+   at Cart.API.Services.CartService.FetchProductAsync(Guid productId) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Services\CartService.cs:line 141
+   at Cart.API.Services.CartService.AddItemAsync(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Services\CartService.cs:line 42
+   at Cart.API.Controllers.CartController.AddItem(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Controllers\CartController.cs:line 63
+   at lambda_method7(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+[22:42:51 WRN] Cart API domain error CRT-002 with correlation id 0HNLVFSBF2762:00000003
+Cart.API.Exceptions.NotFoundException: Producto no encontrado.
+   at Cart.API.Services.CartService.FetchProductAsync(Guid productId) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Services\CartService.cs:line 141
+   at Cart.API.Services.CartService.AddItemAsync(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Services\CartService.cs:line 42
+   at Cart.API.Controllers.CartController.AddItem(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Controllers\CartController.cs:line 63
+   at lambda_method7(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+[22:42:51 INF] Request finished HTTP/1.1 POST http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items - 404 null application/json; charset=utf-8 522.6401ms
+[22:42:51 INF] Request starting HTTP/1.1 POST http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items - application/json 83
+[22:42:51 INF] Executing endpoint 'Cart.API.Controllers.CartController.AddItem (Cart.API)'
+[22:42:51 INF] Route matched with {action = "AddItem", controller = "Cart"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Cart.API.DTOs.Responses.CartResponse]] AddItem(System.Guid, Cart.API.DTOs.Requests.AddCartItemRequest) on controller Cart.API.Controllers.CartController (Cart.API).
+[22:42:51 INF] Start processing HTTP request GET http://localhost:61009/api/products/b69b109d-9c5c-4f68-9942-a0ba2f4710b1
+[22:42:51 INF] Sending HTTP request GET http://localhost:61009/api/products/b69b109d-9c5c-4f68-9942-a0ba2f4710b1
+[22:42:51 INF] Received HTTP response headers after 55.8777ms - 200
+[22:42:51 INF] End processing HTTP request after 61.084ms - 200
+[22:42:51 INF] Fetched product b69b109d-9c5c-4f68-9942-a0ba2f4710b1: Name=Notebook Lenovo IdeaPad, Stock=12, Price=899999.99
+[22:42:51 INF] Adding item to cart for user 98dd379a-cb8f-4112-aa87-3cd9d533b5d6. Existing: False (Qty: 0), Request Qty: 5, Total: 5, Stock: 12
+[22:42:51 INF] Executing OkObjectResult, writing value of type 'Cart.API.DTOs.Responses.CartResponse'.
+[22:42:51 INF] Executed action Cart.API.Controllers.CartController.AddItem (Cart.API) in 122.7591ms
+[22:42:51 INF] Executed endpoint 'Cart.API.Controllers.CartController.AddItem (Cart.API)'
+[22:42:51 INF] Request finished HTTP/1.1 POST http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items - 200 null application/json; charset=utf-8 130.263ms
+[22:42:51 INF] Request starting HTTP/1.1 POST http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items - application/json 84
+[22:42:51 INF] Executing endpoint 'Cart.API.Controllers.CartController.AddItem (Cart.API)'
+[22:42:51 INF] Route matched with {action = "AddItem", controller = "Cart"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Cart.API.DTOs.Responses.CartResponse]] AddItem(System.Guid, Cart.API.DTOs.Requests.AddCartItemRequest) on controller Cart.API.Controllers.CartController (Cart.API).
+[22:42:51 INF] Start processing HTTP request GET http://localhost:61009/api/products/b69b109d-9c5c-4f68-9942-a0ba2f4710b1
+[22:42:51 INF] Sending HTTP request GET http://localhost:61009/api/products/b69b109d-9c5c-4f68-9942-a0ba2f4710b1
+[22:42:51 INF] Received HTTP response headers after 6.6329ms - 200
+[22:42:51 INF] End processing HTTP request after 10.0114ms - 200
+[22:42:51 INF] Fetched product b69b109d-9c5c-4f68-9942-a0ba2f4710b1: Name=Notebook Lenovo IdeaPad, Stock=12, Price=899999.99
+[22:42:51 INF] Adding item to cart for user 98dd379a-cb8f-4112-aa87-3cd9d533b5d6. Existing: True (Qty: 5), Request Qty: 10, Total: 15, Stock: 12
+[22:42:51 INF] Executed action Cart.API.Controllers.CartController.AddItem (Cart.API) in 15.3127ms
+[22:42:51 INF] Executed endpoint 'Cart.API.Controllers.CartController.AddItem (Cart.API)'
+[22:42:51 ERR] An unhandled exception has occurred while executing the request.
+Cart.API.Exceptions.BusinessRuleException: Stock insuficiente para agregar al carrito.
+   at Cart.API.Services.CartService.AddItemAsync(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Services\CartService.cs:line 54
+   at Cart.API.Controllers.CartController.AddItem(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Controllers\CartController.cs:line 63
+   at lambda_method7(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+[22:42:51 WRN] Cart API domain error CRT-003 with correlation id 0HNLVFSBF2762:00000005
+Cart.API.Exceptions.BusinessRuleException: Stock insuficiente para agregar al carrito.
+   at Cart.API.Services.CartService.AddItemAsync(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Services\CartService.cs:line 54
+   at Cart.API.Controllers.CartController.AddItem(Guid userId, AddCartItemRequest request) in C:\Users\beraj\source\repos\juliholcman\TP-CAI-GRUPO-26\src\Cart.API\Controllers\CartController.cs:line 63
+   at lambda_method7(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+[22:42:51 INF] Request finished HTTP/1.1 POST http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items - 422 null application/json; charset=utf-8 34.0636ms
+[22:42:51 INF] Request starting HTTP/1.1 PUT http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items/b69b109d-9c5c-4f68-9942-a0ba2f4710b1 - application/json 24
+[22:42:51 INF] Executing endpoint 'Cart.API.Controllers.CartController.UpdateItem (Cart.API)'
+[22:42:51 INF] Route matched with {action = "UpdateItem", controller = "Cart"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Cart.API.DTOs.Responses.CartResponse]] UpdateItem(System.Guid, System.Guid, Cart.API.DTOs.Requests.UpdateCartItemRequest) on controller Cart.API.Controllers.CartController (Cart.API).
+[22:42:51 INF] Start processing HTTP request GET http://localhost:61009/api/products/b69b109d-9c5c-4f68-9942-a0ba2f4710b1
+[22:42:51 INF] Sending HTTP request GET http://localhost:61009/api/products/b69b109d-9c5c-4f68-9942-a0ba2f4710b1
+[22:42:51 INF] Received HTTP response headers after 2.2332ms - 200
+[22:42:51 INF] End processing HTTP request after 6.5233ms - 200
+[22:42:51 INF] Fetched product b69b109d-9c5c-4f68-9942-a0ba2f4710b1: Name=Notebook Lenovo IdeaPad, Stock=12, Price=899999.99
+[22:42:51 INF] Executing OkObjectResult, writing value of type 'Cart.API.DTOs.Responses.CartResponse'.
+[22:42:51 INF] Executed action Cart.API.Controllers.CartController.UpdateItem (Cart.API) in 19.9602ms
+[22:42:51 INF] Executed endpoint 'Cart.API.Controllers.CartController.UpdateItem (Cart.API)'
+[22:42:51 INF] Request finished HTTP/1.1 PUT http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items/b69b109d-9c5c-4f68-9942-a0ba2f4710b1 - 200 null application/json; charset=utf-8 32.7324ms
+[22:42:51 INF] Request starting HTTP/1.1 GET http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6 - null null
+[22:42:51 INF] Executing endpoint 'Cart.API.Controllers.CartController.GetCart (Cart.API)'
+[22:42:51 INF] Route matched with {action = "GetCart", controller = "Cart"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.ActionResult`1[Cart.API.DTOs.Responses.CartResponse] GetCart(System.Guid) on controller Cart.API.Controllers.CartController (Cart.API).
+[22:42:51 INF] Executing OkObjectResult, writing value of type 'Cart.API.DTOs.Responses.CartResponse'.
+[22:42:51 INF] Executed action Cart.API.Controllers.CartController.GetCart (Cart.API) in 1.3852ms
+[22:42:51 INF] Executed endpoint 'Cart.API.Controllers.CartController.GetCart (Cart.API)'
+[22:42:51 INF] Request finished HTTP/1.1 GET http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6 - 200 null application/json; charset=utf-8 19.0407ms
+[22:42:51 INF] Request starting HTTP/1.1 DELETE http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items/b69b109d-9c5c-4f68-9942-a0ba2f4710b1 - null 0
+[22:42:51 INF] Executing endpoint 'Cart.API.Controllers.CartController.RemoveItem (Cart.API)'
+[22:42:51 INF] Route matched with {action = "RemoveItem", controller = "Cart"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult RemoveItem(System.Guid, System.Guid) on controller Cart.API.Controllers.CartController (Cart.API).
+[22:42:51 INF] Executing StatusCodeResult, setting HTTP status code 204
+[22:42:51 INF] Executed action Cart.API.Controllers.CartController.RemoveItem (Cart.API) in 6.4902ms
+[22:42:51 INF] Executed endpoint 'Cart.API.Controllers.CartController.RemoveItem (Cart.API)'
+[22:42:51 INF] Request finished HTTP/1.1 DELETE http://localhost:61017/api/cart/98dd379a-cb8f-4112-aa87-3cd9d533b5d6/items/b69b109d-9c5c-4f68-9942-a0ba2f4710b1 - 204 null null 19.2213ms
