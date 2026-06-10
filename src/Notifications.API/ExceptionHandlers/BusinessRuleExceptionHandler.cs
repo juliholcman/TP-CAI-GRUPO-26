@@ -11,17 +11,17 @@ namespace Notifications.API.ExceptionHandlers
             Exception exception,
             CancellationToken cancellationToken)
         {
-            // 1. Verificamos si la alarma es de tipo "Regla de Negocio"
             if (exception is not BusinessRuleException businessException)
             {
-                return false; // Si no es este tipo de error, se lo pasa al siguiente handler
+                return false;
             }
 
-            // 2. Configuramos la respuesta como 400 (Bad Request) 
-            // según el catálogo de errores NTF-002 del PDF [cite: 235]
+            var correlationId = context.Response.Headers["X-Correlation-Id"].FirstOrDefault()
+                             ?? context.Request.Headers["X-Correlation-Id"].FirstOrDefault()
+                             ?? string.Empty;
+
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
-            // 3. Armamos el JSON con el formato "Problem Details" que pide el TP [cite: 18, 19]
             var problemDetails = new
             {
                 type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
@@ -29,11 +29,11 @@ namespace Notifications.API.ExceptionHandlers
                 status = 400,
                 detail = "La solicitud contiene datos inválidos o no permitidos.",
                 instance = context.Request.Path.Value,
-                errorCode = businessException.ErrorCode, // Aquí irá "NTF-002"
+                correlationId,
+                errorCode = businessException.ErrorCode,
                 errorMessage = businessException.Message
             };
 
-            // 4. Enviamos la respuesta
             await context.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 
             return true;
