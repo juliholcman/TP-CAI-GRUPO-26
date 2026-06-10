@@ -44,22 +44,20 @@ public class ProductService
         }
     ];
 
+    /// <summary>
+    /// Devuelve solo productos activos (DeletedAt == null).
+    /// </summary>
     public IEnumerable<ProductResponse> GetAll()
     {
         return _products
             .Where(product => product.DeletedAt is null)
-            .Select(product => new ProductResponse
-            {
-                Id = product.Id,
-                Nombre = product.Nombre,
-                Descripcion = product.Descripcion,
-                Precio = product.Precio,
-                Stock = product.Stock,
-                Categoria = product.Categoria,
-                FechaCreacion = product.FechaCreacion
-            });
+            .Select(MapToResponse);
     }
 
+    /// <summary>
+    /// Busca un producto activo por su Id.
+    /// Lanza NotFoundException (PRD-001) si no existe o fue eliminado.
+    /// </summary>
     public ProductResponse GetById(Guid id)
     {
         var product = _products.FirstOrDefault(p => p.Id == id && p.DeletedAt is null);
@@ -68,18 +66,13 @@ public class ProductService
             throw new NotFoundException("PRD-001", "Producto no encontrado.");
         }
 
-        return new ProductResponse
-        {
-            Id = product.Id,
-            Nombre = product.Nombre,
-            Descripcion = product.Descripcion,
-            Precio = product.Precio,
-            Stock = product.Stock,
-            Categoria = product.Categoria,
-            FechaCreacion = product.FechaCreacion
-        };
+        return MapToResponse(product);
     }
 
+    /// <summary>
+    /// Crea un nuevo producto.
+    /// Lanza ConflictException (PRD-003) si ya existe uno con el mismo Nombre y Categoria.
+    /// </summary>
     public ProductResponse Create(CreateProductRequest request)
     {
         var exists = _products.Any(p =>
@@ -104,27 +97,16 @@ public class ProductService
 
         _products.Add(product);
 
-        return new ProductResponse
-        {
-            Id = product.Id,
-            Nombre = product.Nombre,
-            Descripcion = product.Descripcion,
-            Precio = product.Precio,
-            Stock = product.Stock,
-            Categoria = product.Categoria,
-            FechaCreacion = product.FechaCreacion
-        };
+        return MapToResponse(product);
     }
+
+    /// <summary>
+    /// Actualiza un producto existente.
+    /// Lanza NotFoundException (PRD-001) si no existe o fue eliminado.
+    /// La validación de campos se realiza en capa de DataAnnotations (PRD-002).
+    /// </summary>
     public ProductResponse Update(Guid id, UpdateProductRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.Nombre) || 
-            request.Precio <= 0 || 
-            request.Stock < 0 || 
-            string.IsNullOrWhiteSpace(request.Categoria))
-        {
-            throw new ValidationException("PRD-002", "Los datos del producto son inválidos.");
-        }
-
         var product = _products.FirstOrDefault(p => p.Id == id && p.DeletedAt is null);
         if (product is null)
         {
@@ -137,17 +119,17 @@ public class ProductService
         product.Stock = request.Stock;
         product.Categoria = request.Categoria;
 
-        return new ProductResponse
-        {
-            Id = product.Id,
-            Nombre = product.Nombre,
-            Descripcion = product.Descripcion,
-            Precio = product.Precio,
-            Stock = product.Stock,
-            Categoria = product.Categoria,
-            FechaCreacion = product.FechaCreacion
-        };
+        return MapToResponse(product);
     }
+
+    /// <summary>
+    /// Elimina lógicamente un producto (soft delete marcando DeletedAt).
+    /// Lanza NotFoundException (PRD-001) si no existe o ya fue eliminado.
+    ///
+    /// STUB PRD-004: La verificación de órdenes activas requiere integración con Orders.API,
+    /// que aún no está disponible. Se simula con un ID fijo para demostración del contrato.
+    /// TODO: reemplazar por llamada HTTP a Orders.API cuando esté disponible.
+    /// </summary>
     public void Delete(Guid id)
     {
         var product = _products.FirstOrDefault(p => p.Id == id && p.DeletedAt is null);
@@ -156,7 +138,9 @@ public class ProductService
             throw new NotFoundException("PRD-001", "Producto no encontrado.");
         }
 
-        // Simulación: Si es este ID específico, consideramos que tiene órdenes activas
+        // STUB TEMPORAL – PRD-004:
+        // Sin integración real con Orders.API, se simula que el producto con este ID
+        // tiene órdenes activas. Reemplazar por validación real cuando Orders.API esté disponible.
         if (id == Guid.Parse("3b1c1b9f-5c49-4944-b6ce-d6edc40a42a7"))
         {
             throw new BusinessRuleException("PRD-004", "El producto tiene órdenes activas y no puede eliminarse.");
@@ -164,4 +148,15 @@ public class ProductService
 
         product.DeletedAt = DateTime.UtcNow;
     }
+
+    private static ProductResponse MapToResponse(Product product) => new()
+    {
+        Id = product.Id,
+        Nombre = product.Nombre,
+        Descripcion = product.Descripcion,
+        Precio = product.Precio,
+        Stock = product.Stock,
+        Categoria = product.Categoria,
+        FechaCreacion = product.FechaCreacion
+    };
 }

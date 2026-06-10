@@ -13,6 +13,10 @@ public class BusinessRuleExceptionHandler : IExceptionHandler
         if (exception is not BusinessRuleException ex)
             return false;
 
+        var correlationId = context.Response.Headers["X-Correlation-Id"].FirstOrDefault()
+                         ?? context.Request.Headers["X-Correlation-Id"].FirstOrDefault()
+                         ?? string.Empty;
+
         context.Response.StatusCode = StatusCodes.Status409Conflict;
 
         await context.Response.WriteAsJsonAsync(new
@@ -22,6 +26,7 @@ public class BusinessRuleExceptionHandler : IExceptionHandler
             status = 409,
             detail = "Hubo un conflicto de reglas de negocio.",
             instance = context.Request.Path.Value,
+            correlationId,
             errorCode = ex.ErrorCode,
             errorMessage = ex.Message
         }, cancellationToken);

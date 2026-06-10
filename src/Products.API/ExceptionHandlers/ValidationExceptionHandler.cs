@@ -13,6 +13,10 @@ public class ValidationExceptionHandler : IExceptionHandler
         if (exception is not ValidationException ex)
             return false;
 
+        var correlationId = context.Response.Headers["X-Correlation-Id"].FirstOrDefault()
+                         ?? context.Request.Headers["X-Correlation-Id"].FirstOrDefault()
+                         ?? string.Empty;
+
         context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
         await context.Response.WriteAsJsonAsync(new
@@ -22,6 +26,7 @@ public class ValidationExceptionHandler : IExceptionHandler
             status = 400,
             detail = "Hubo un error de validación en los datos enviados.",
             instance = context.Request.Path.Value,
+            correlationId,
             errorCode = ex.ErrorCode,
             errorMessage = ex.Message
         }, cancellationToken);

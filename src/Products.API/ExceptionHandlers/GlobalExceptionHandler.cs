@@ -17,7 +17,11 @@ public class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        _logger.LogError(exception, "Ocurrió un error inesperado.");
+        var correlationId = context.Response.Headers["X-Correlation-Id"].FirstOrDefault()
+                         ?? context.Request.Headers["X-Correlation-Id"].FirstOrDefault()
+                         ?? string.Empty;
+
+        _logger.LogError(exception, "Ocurrió un error inesperado. CorrelationId: {CorrelationId}", correlationId);
 
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
@@ -28,7 +32,8 @@ public class GlobalExceptionHandler : IExceptionHandler
             status = 500,
             detail = "Ocurrió un error inesperado en el servidor.",
             instance = context.Request.Path.Value,
-            errorCode = "PRD-500",
+            correlationId,
+            errorCode = "PRD-005",
             errorMessage = "Error interno del servidor."
         }, cancellationToken);
 
