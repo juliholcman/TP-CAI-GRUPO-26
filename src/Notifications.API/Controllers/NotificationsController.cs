@@ -49,9 +49,9 @@ public class NotificationsController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public IActionResult Send([FromBody] NotificationRequest request)
+    public async Task<IActionResult> Send([FromBody] NotificationRequest request)
     {
-        var response = _notificationService.Send(request);
+        var response = await _notificationService.SendAsync(request);
         return CreatedAtAction(nameof(Get), new { userId = response.UsuarioId }, response);
     }
 
@@ -77,9 +77,9 @@ public class NotificationsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<NotificationResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public IActionResult Get([FromRoute] Guid userId)
+    public async Task<IActionResult> Get([FromRoute] Guid userId)
     {
-        var response = _notificationService.GetByUserId(userId);
+        var response = await _notificationService.GetByUserIdAsync(userId);
         return Ok(response);
     }
 }

@@ -2,6 +2,8 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
+using Notifications.API.Data;
+using Notifications.API.Data.Repositories;
 using Notifications.API.ExceptionHandlers;
 using Notifications.API.Services;
 using Serilog;
@@ -58,10 +60,17 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<BusinessRuleExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddSingleton<DatabaseInitializer>();
+builder.Services.AddScoped<NotificationRepository>();
 builder.Services.AddSingleton<IUserValidator, InMemoryUserValidator>();
-builder.Services.AddSingleton<NotificationService>();
+builder.Services.AddScoped<NotificationService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().Initialize();
+}
 
 app.Use(async (context, next) =>
 {

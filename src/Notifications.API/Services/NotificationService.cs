@@ -1,3 +1,4 @@
+using Notifications.API.Data.Repositories;
 using Notifications.API.DTOs.Requests;
 using Notifications.API.DTOs.Responses;
 using Notifications.API.Exceptions;
@@ -11,74 +12,66 @@ public class NotificationService
     private static readonly HashSet<string> TiposPermitidos =
         new(StringComparer.OrdinalIgnoreCase) { "Email", "Push", "SMS" };
 
-    private readonly List<Notification> _notifications = [];
-    private readonly object _syncRoot = new();
+    private readonly NotificationRepository _repository;
     private readonly IUserValidator _userValidator;
 
-    public NotificationService(IUserValidator userValidator)
+    public NotificationService(NotificationRepository repository, IUserValidator userValidator)
     {
+        _repository = repository;
         _userValidator = userValidator;
     }
 
     /// <summary>
-    /// Envía una notificación al usuario indicado.
+    /// Envía una notificación al usuario indicado y la persiste en SQLite.
     /// Lanza <see cref="NotFoundException"/> (NTF-001) si el usuario no existe.
     /// Lanza <see cref="BusinessRuleException"/> (NTF-002) si el Tipo no es válido
     /// o si UsuarioId es Guid.Empty.
     /// </summary>
-    public NotificationResponse Send(NotificationRequest request)
+    public async Task<NotificationResponse> SendAsync(NotificationRequest request)
     {
         ValidateRequest(request);
 
-        lock (_syncRoot)
+        var notification = new Notification
         {
-            var notification = new Notification
-            {
-                Id = Guid.NewGuid(),
-                UsuarioId = request.UsuarioId,
-                Mensaje = request.Mensaje.Trim(),
-                // Normalizamos a la capitalización canónica registrada en TiposPermitidos
-                Tipo = NormalizeTipo(request.Tipo),
-                Estado = "Pendiente",
-                FechaEnvio = DateTime.UtcNow
-            };
+            Id = Guid.NewGuid(),
+            UsuarioId = request.UsuarioId,
+            Mensaje = request.Mensaje.Trim(),
+            // Normalizamos a la capitalización canónica registrada en TiposPermitidos
+            Tipo = NormalizeTipo(request.Tipo),
+            Estado = "Pendiente",
+            FechaEnvio = DateTime.UtcNow
+        };
 
-            try
-            {
-                // TODO: aquí iría la integración real con el proveedor (Email, SMS, Push).
-                // Como es una simulación, marcamos la notificación como "Enviada".
-                notification.Estado = "Enviada";
-            }
-            catch
-            {
-                notification.Estado = "Fallida";
-            }
-
-            _notifications.Add(notification);
-
-            return ToResponse(notification);
+        try
+        {
+            // TODO: aquí iría la integración real con el proveedor (Email, SMS, Push).
+            // Como es una simulación, marcamos la notificación como "Enviada".
+            notification.Estado = "Enviada";
         }
+        catch
+        {
+            notification.Estado = "Fallida";
+        }
+
+        await _repository.CreateAsync(notification);
+
+        return ToResponse(notification);
     }
 
     /// <summary>
-    /// Obtiene las notificaciones de un usuario.
+    /// Obtiene las notificaciones de un usuario desde SQLite.
     /// Lanza <see cref="NotFoundException"/> (NTF-003) si el usuario no tiene notificaciones.
     /// </summary>
-    public IEnumerable<NotificationResponse> GetByUserId(Guid userId)
+    public async Task<IEnumerable<NotificationResponse>> GetByUserIdAsync(Guid userId)
     {
-        lock (_syncRoot)
+        var userNotifications = await _repository.GetByUserIdAsync(userId);
+
+        if (userNotifications.Count == 0)
         {
-            var userNotifications = _notifications
-                .Where(n => n.UsuarioId == userId)
-                .ToList();
-
-            if (userNotifications.Count == 0)
-            {
-                throw new NotFoundException("NTF-003", "No se encontraron notificaciones para el usuario solicitado.");
-            }
-
-            return userNotifications.Select(ToResponse);
+            throw new NotFoundException("NTF-003", "No se encontraron notificaciones para el usuario solicitado.");
         }
+
+        return userNotifications.Select(ToResponse);
     }
 
     // ─── Métodos privados ────────────────────────────────────────────────────
