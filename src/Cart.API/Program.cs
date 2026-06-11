@@ -5,6 +5,8 @@ using Serilog;
 using Serilog.Context;
 using Serilog.Events;
 using Serilog.Formatting.Json;
+using Cart.API.Data;
+using Cart.API.Data.Repositories;
 using Cart.API.ExceptionHandlers;
 using Cart.API.Services;
 
@@ -27,14 +29,33 @@ builder.Services.AddExceptionHandler<CartApiExceptionHandler>();
 builder.Services.AddExceptionHandler<UnhandledExceptionHandler>();
 builder.Services.AddHealthChecks();
 
+// ── Persistence (SQLite + Dapper) ─────────────────────────────────────────
+builder.Services.AddSingleton<DatabaseInitializer>();
+builder.Services.AddScoped<CartRepository>();
+
+// ── HttpClient para Products API ──────────────────────────────────────────
 var productsApiUrl = builder.Configuration["ProductsApi:BaseUrl"] ?? "https://localhost:61008";
-builder.Services.AddHttpClient<CartService>(client =>
+builder.Services.AddHttpClient("ProductsApi", client =>
 {
     client.BaseAddress = new Uri(productsApiUrl);
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
+builder.Services.AddScoped<CartService>(sp =>
+{
+    var repo       = sp.GetRequiredService<CartRepository>();
+    var factory    = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = factory.CreateClient("ProductsApi");
+    var logger     = sp.GetRequiredService<ILogger<CartService>>();
+    return new CartService(repo, httpClient, logger);
+});
 
 var app = builder.Build();
+
+// ── Inicializar base de datos ─────────────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().Initialize();
+}
 
 app.Use(async (context, next) =>
 {
