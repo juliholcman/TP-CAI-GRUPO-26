@@ -7,12 +7,28 @@ namespace Notifications.API.Services;
 
 public class NotificationService
 {
+    // Valores de Tipo permitidos según el catálogo del TP
+    private static readonly HashSet<string> TiposPermitidos =
+        new(StringComparer.OrdinalIgnoreCase) { "Email", "Push", "SMS" };
+
     private readonly List<Notification> _notifications = [];
     private readonly object _syncRoot = new();
+    private readonly IUserValidator _userValidator;
 
+    public NotificationService(IUserValidator userValidator)
+    {
+        _userValidator = userValidator;
+    }
+
+    /// <summary>
+    /// Envía una notificación al usuario indicado.
+    /// Lanza <see cref="NotFoundException"/> (NTF-001) si el usuario no existe.
+    /// Lanza <see cref="BusinessRuleException"/> (NTF-002) si el Tipo no es válido
+    /// o si UsuarioId es Guid.Empty.
+    /// </summary>
     public NotificationResponse Send(NotificationRequest request)
     {
-        ValidateNotificationRequest(request);
+        ValidateRequest(request);
 
         lock (_syncRoot)
         {
@@ -21,23 +37,21 @@ public class NotificationService
                 Id = Guid.NewGuid(),
                 UsuarioId = request.UsuarioId,
                 Mensaje = request.Mensaje.Trim(),
-                Tipo = request.Tipo.Trim(),
-                Estado = "Pendiente", // Estado inicial antes de procesar
+                // Normalizamos a la capitalización canónica registrada en TiposPermitidos
+                Tipo = NormalizeTipo(request.Tipo),
+                Estado = "Pendiente",
                 FechaEnvio = DateTime.UtcNow
             };
 
             try
             {
-                // TODO: Aquí iría la integración con el provider real (Email, SMS, Push, etc.)
-                // Como es una simulación, lo marcamos como "Enviada"
+                // TODO: aquí iría la integración real con el proveedor (Email, SMS, Push).
+                // Como es una simulación, marcamos la notificación como "Enviada".
                 notification.Estado = "Enviada";
             }
             catch
             {
-                // Si la integración falla, manejamos el estado correspondiente
                 notification.Estado = "Fallida";
-                
-                // Dependiendo del requerimiento, podrías registrar el error o relanzarlo
             }
 
             _notifications.Add(notification);
@@ -46,6 +60,10 @@ public class NotificationService
         }
     }
 
+    /// <summary>
+    /// Obtiene las notificaciones de un usuario.
+    /// Lanza <see cref="NotFoundException"/> (NTF-003) si el usuario no tiene notificaciones.
+    /// </summary>
     public IEnumerable<NotificationResponse> GetByUserId(Guid userId)
     {
         lock (_syncRoot)
@@ -63,21 +81,46 @@ public class NotificationService
         }
     }
 
-    private static void ValidateNotificationRequest(NotificationRequest request)
+    // ─── Métodos privados ────────────────────────────────────────────────────
+
+    private void ValidateRequest(NotificationRequest request)
     {
-        if (request is null || 
-            request.UsuarioId == Guid.Empty || 
-            string.IsNullOrWhiteSpace(request.Mensaje) || 
-            string.IsNullOrWhiteSpace(request.Tipo))
+        // UsuarioId vacío: error de datos inválidos (NTF-002)
+        if (request.UsuarioId == Guid.Empty)
         {
-            // Cumpliendo con el catálogo de errores y validación
-            throw new BusinessRuleException("NTF-002", "Los datos de la notificación son inválidos o faltantes.");
+            throw new BusinessRuleException(
+                "NTF-002",
+                "UsuarioId no puede ser Guid.Empty.");
+        }
+
+        // Tipo inválido: NTF-002
+        if (string.IsNullOrWhiteSpace(request.Tipo) || !TiposPermitidos.Contains(request.Tipo))
+        {
+            throw new BusinessRuleException(
+                "NTF-002",
+                $"El Tipo '{request.Tipo}' no es válido. Valores permitidos: {string.Join(", ", TiposPermitidos)}.");
+        }
+
+        // Usuario inexistente: NTF-001
+        if (!_userValidator.UserExists(request.UsuarioId))
+        {
+            throw new NotFoundException(
+                "NTF-001",
+                $"El usuario con id '{request.UsuarioId}' no existe.");
         }
     }
 
-    private static NotificationResponse ToResponse(Notification notification)
+    /// <summary>
+    /// Retorna el Tipo con la capitalización canónica (e.g. "email" → "Email").
+    /// </summary>
+    private static string NormalizeTipo(string tipo)
     {
-        return new NotificationResponse
+        // TiposPermitidos usa OrdinalIgnoreCase, así que encontraremos siempre la forma canónica
+        return TiposPermitidos.TryGetValue(tipo, out var canonical) ? canonical : tipo;
+    }
+
+    private static NotificationResponse ToResponse(Notification notification) =>
+        new()
         {
             Id = notification.Id,
             UsuarioId = notification.UsuarioId,
@@ -86,5 +129,4 @@ public class NotificationService
             Estado = notification.Estado,
             FechaEnvio = notification.FechaEnvio
         };
-    }
 }
