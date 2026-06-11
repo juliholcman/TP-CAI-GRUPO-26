@@ -17,9 +17,11 @@ public class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        var correlationId = context.Response.Headers["X-Correlation-Id"].FirstOrDefault()
-                         ?? context.Request.Headers["X-Correlation-Id"].FirstOrDefault()
-                         ?? string.Empty;
+        var correlationId = context.Response.Headers.TryGetValue("X-Correlation-Id", out var cid)
+            ? cid.ToString()
+            : context.Request.Headers.TryGetValue("X-Correlation-Id", out var rcid)
+                ? rcid.ToString()
+                : string.Empty;
 
         _logger.LogError(exception, "Ocurrió un error inesperado. CorrelationId: {CorrelationId}", correlationId);
 
@@ -34,7 +36,7 @@ public class GlobalExceptionHandler : IExceptionHandler
             instance = context.Request.Path.Value,
             correlationId,
             errorCode = "PRD-005",
-            errorMessage = "Error interno del servidor."
+            errorMessage = "Error interno al procesar el producto."
         }, cancellationToken);
 
         return true;

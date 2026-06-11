@@ -1,6 +1,6 @@
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Json;
+using Cart.API.Data.Repositories;
 using Cart.API.DTOs;
 using Cart.API.DTOs.Requests;
 using Cart.API.DTOs.Responses;
@@ -11,25 +11,34 @@ namespace Cart.API.Services;
 
 public class CartService
 {
-    private static readonly ConcurrentDictionary<Guid, Models.Cart> _carts = new();
+    private readonly CartRepository _cartRepository;
     private readonly HttpClient _httpClient;
     private readonly ILogger<CartService> _logger;
 
-    public CartService(HttpClient httpClient, ILogger<CartService> logger)
+    public CartService(
+        CartRepository cartRepository,
+        HttpClient httpClient,
+        ILogger<CartService> logger)
     {
+        _cartRepository = cartRepository;
         _httpClient = httpClient;
         _logger = logger;
     }
 
-    public CartResponse GetCart(Guid userId)
+    public async Task<CartResponse> GetCartAsync(Guid userId)
     {
-        if (!_carts.TryGetValue(userId, out var cart))
+        var cart = await _cartRepository.GetByUserIdAsync(userId);
+        if (cart is null)
         {
             throw new NotFoundException("CRT-001", "Carrito no encontrado.");
         }
 
         return MapToResponse(cart);
     }
+
+    // Keep synchronous overload to avoid breaking CartController (non-async action)
+    public CartResponse GetCart(Guid userId)
+        => GetCartAsync(userId).GetAwaiter().GetResult();
 
     public async Task<CartResponse> AddItemAsync(Guid userId, AddCartItemRequest request)
     {
@@ -38,38 +47,51 @@ public class CartService
             throw new ValidationException("CRT-004", "Cantidad inválida.");
         }
 
-        // Validate product exists in Products API
+        // Validate product exists in Products API and check stock
         var product = await FetchProductAsync(request.ProductId);
 
-        var cart = _carts.GetOrAdd(userId, id => new Models.Cart { UserId = id });
+        // Ensure cart row exists (upsert)
+        await _cartRepository.CreateOrUpdateCartAsync(userId);
 
-        var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
-        int totalNewQuantity = (existingItem?.Cantidad ?? 0) + request.Cantidad;
+        // Calculate total quantity (existing + requested)
+        int existingQty = 0;
+        if (await _cartRepository.ItemExistsAsync(userId, request.ProductId))
+        {
+            var cart = await _cartRepository.GetByUserIdAsync(userId);
+            existingQty = cart?.Items.FirstOrDefault(i => i.ProductId == request.ProductId)?.Cantidad ?? 0;
+        }
 
-        _logger.LogInformation("Adding item to cart for user {UserId}. Existing: {HasExisting} (Qty: {ExistingQty}), Request Qty: {ReqQty}, Total: {TotalNewQty}, Stock: {Stock}",
-            userId, existingItem != null, existingItem?.Cantidad ?? 0, request.Cantidad, totalNewQuantity, product.Stock);
+        int totalNewQuantity = existingQty + request.Cantidad;
+
+        _logger.LogInformation(
+            "Adding item to cart for user {UserId}. Existing: {HasExisting} (Qty: {ExistingQty}), Request Qty: {ReqQty}, Total: {TotalNewQty}, Stock: {Stock}",
+            userId, existingQty > 0, existingQty, request.Cantidad, totalNewQuantity, product.Stock);
 
         if (totalNewQuantity > product.Stock)
         {
             throw new BusinessRuleException("CRT-003", "Stock insuficiente para agregar al carrito.");
         }
 
-        if (existingItem != null)
+        if (existingQty > 0)
         {
-            existingItem.Cantidad = totalNewQuantity;
+            // Increment existing item quantity
+            await _cartRepository.UpdateItemQuantityAsync(userId, request.ProductId, totalNewQuantity);
         }
         else
         {
-            cart.Items.Add(new CartItem
+            // Insert new item
+            var newItem = new CartItem
             {
                 ProductId = product.Id,
-                Nombre = product.Nombre,
-                Precio = product.Precio,
-                Cantidad = request.Cantidad
-            });
+                Nombre    = product.Nombre,
+                Precio    = product.Precio,
+                Cantidad  = request.Cantidad
+            };
+            await _cartRepository.AddOrUpdateItemAsync(userId, newItem);
         }
 
-        return MapToResponse(cart);
+        var updatedCart = await _cartRepository.GetByUserIdAsync(userId);
+        return MapToResponse(updatedCart!);
     }
 
     public async Task<CartResponse> UpdateItemAsync(Guid userId, Guid productId, UpdateCartItemRequest request)
@@ -79,17 +101,13 @@ public class CartService
             throw new ValidationException("CRT-004", "Cantidad inválida.");
         }
 
-        if (!_carts.TryGetValue(userId, out var cart))
+        if (!await _cartRepository.CartExistsAsync(userId))
         {
             throw new NotFoundException("CRT-001", "Carrito no encontrado.");
         }
 
-        var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
-        if (existingItem == null)
+        if (!await _cartRepository.ItemExistsAsync(userId, productId))
         {
-            // The image says: "CRT-002: Producto no encontrado. POST/PUT cuando el ProductId no existe en Products API."
-            // Wait, does it also apply if the product is not in the cart?
-            // To be perfectly safe, let's check both: if the product is not in the cart, throw CRT-002.
             throw new NotFoundException("CRT-002", "Producto no encontrado.");
         }
 
@@ -101,35 +119,47 @@ public class CartService
             throw new BusinessRuleException("CRT-003", "Stock insuficiente para agregar al carrito.");
         }
 
-        existingItem.Cantidad = request.Cantidad;
-        existingItem.Precio = product.Precio; // sync price
+        await _cartRepository.UpdateItemPriceAndQuantityAsync(userId, productId, request.Cantidad, product.Precio);
+        await _cartRepository.CreateOrUpdateCartAsync(userId); // update timestamp
 
-        return MapToResponse(cart);
+        var updatedCart = await _cartRepository.GetByUserIdAsync(userId);
+        return MapToResponse(updatedCart!);
     }
 
-    public void RemoveItem(Guid userId, Guid productId)
+    public async Task RemoveItemAsync(Guid userId, Guid productId)
     {
-        if (!_carts.TryGetValue(userId, out var cart))
+        if (!await _cartRepository.CartExistsAsync(userId))
         {
             throw new NotFoundException("CRT-001", "Carrito no encontrado.");
         }
 
-        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
-        if (item == null)
+        if (!await _cartRepository.ItemExistsAsync(userId, productId))
         {
             throw new NotFoundException("CRT-002", "Producto no encontrado.");
         }
 
-        cart.Items.Remove(item);
+        await _cartRepository.RemoveItemAsync(userId, productId);
     }
 
-    public void ClearCart(Guid userId)
+    // Keep synchronous overload to avoid breaking CartController (non-async action)
+    public void RemoveItem(Guid userId, Guid productId)
+        => RemoveItemAsync(userId, productId).GetAwaiter().GetResult();
+
+    public async Task ClearCartAsync(Guid userId)
     {
-        if (!_carts.TryRemove(userId, out _))
+        if (!await _cartRepository.CartExistsAsync(userId))
         {
             throw new NotFoundException("CRT-001", "Carrito no encontrado.");
         }
+
+        await _cartRepository.ClearCartAsync(userId);
     }
+
+    // Keep synchronous overload to avoid breaking CartController (non-async action)
+    public void ClearCart(Guid userId)
+        => ClearCartAsync(userId).GetAwaiter().GetResult();
+
+    // ── Private helpers ───────────────────────────────────────────────────────
 
     private async Task<ProductResponse> FetchProductAsync(Guid productId)
     {
@@ -144,12 +174,14 @@ public class CartService
             response.EnsureSuccessStatusCode();
 
             var product = await response.Content.ReadFromJsonAsync<ProductResponse>();
-            if (product == null)
+            if (product is null)
             {
                 throw new NotFoundException("CRT-002", "Producto no encontrado.");
             }
 
-            _logger.LogInformation("Fetched product {ProductId}: Name={Name}, Stock={Stock}, Price={Price}", productId, product.Nombre, product.Stock, product.Precio);
+            _logger.LogInformation(
+                "Fetched product {ProductId}: Name={Name}, Stock={Stock}, Price={Price}",
+                productId, product.Nombre, product.Stock, product.Precio);
 
             return product;
         }
@@ -164,19 +196,19 @@ public class CartService
         }
     }
 
-    private static CartResponse MapToResponse(Models.Cart cart)
+    private static CartResponse MapToResponse(Cart.API.Models.Cart cart)
     {
         return new CartResponse
         {
             UserId = cart.UserId,
-            Total = cart.Total,
-            Items = cart.Items.Select(item => new CartItemResponse
+            Total  = cart.Total,
+            Items  = cart.Items.Select(item => new CartItemResponse
             {
                 ProductId = item.ProductId,
-                Nombre = item.Nombre,
-                Precio = item.Precio,
-                Cantidad = item.Cantidad,
-                Subtotal = item.Subtotal
+                Nombre    = item.Nombre,
+                Precio    = item.Precio,
+                Cantidad  = item.Cantidad,
+                Subtotal  = item.Subtotal
             }).ToList()
         };
     }

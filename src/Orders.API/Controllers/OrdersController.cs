@@ -22,9 +22,11 @@ public class OrdersController : ControllerBase
     /// <param name="usuarioId">ID del usuario para filtrar las órdenes (opcional).</param>
     /// <returns>El listado de órdenes correspondientes al filtro.</returns>
     /// <response code="200">Retorna la lista de órdenes.</response>
+    /// <response code="400">El filtro usuarioId no tiene formato GUID válido.</response>
     /// <response code="500">Error interno del servidor o de persistencia (Mapea a error ORD-007).</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<OrderResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
     public ActionResult<IEnumerable<OrderResponse>> Get([FromQuery] Guid? usuarioId)
     {
@@ -38,10 +40,12 @@ public class OrdersController : ControllerBase
     /// <param name="id">ID de la orden (Guid).</param>
     /// <returns>El detalle completo de la orden solicitada.</returns>
     /// <response code="200">Retorna la orden encontrada.</response>
+    /// <response code="400">El ID no tiene formato GUID válido.</response>
     /// <response code="404">Si el ID de la orden no existe (Mapea a error ORD-001).</response>
     /// <response code="500">Error interno del servidor o de persistencia (Mapea a error ORD-007).</response>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
     public ActionResult<OrderResponse> GetById(Guid id)
@@ -96,4 +100,3 @@ public class OrdersController : ControllerBase
         return Ok(response);
     }
 }
-

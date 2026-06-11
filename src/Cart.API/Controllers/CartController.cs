@@ -29,10 +29,12 @@ public class CartController : ControllerBase
     /// <param name="userId">Identificador del usuario.</param>
     /// <returns>El carrito del usuario.</returns>
     /// <response code="200">Retorna el carrito del usuario.</response>
+    /// <response code="400">El userId no tiene formato GUID válido.</response>
     /// <response code="404">Si el usuario no tiene un carrito activo. Código de error: CRT-001</response>
     /// <response code="500">Error inesperado en servicio o persistencia. Código de error: CRT-005</response>
     [HttpGet("{userId}")]
     [ProducesResponseType(typeof(CartResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
     public ActionResult<CartResponse> GetCart(Guid userId)
@@ -95,10 +97,12 @@ public class CartController : ControllerBase
     /// <param name="productId">Identificador del producto a remover.</param>
     /// <returns>No content.</returns>
     /// <response code="204">Producto removido con éxito.</response>
+    /// <response code="400">El userId o productId no tiene formato GUID válido.</response>
     /// <response code="404">Si el carrito no está activo (CRT-001) o el producto no está en el carrito (CRT-002).</response>
     /// <response code="500">Error inesperado en servicio o persistencia. Código de error: CRT-005</response>
     [HttpDelete("{userId}/items/{productId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
     public IActionResult RemoveItem(Guid userId, Guid productId)
@@ -113,10 +117,12 @@ public class CartController : ControllerBase
     /// <param name="userId">Identificador del usuario.</param>
     /// <returns>No content.</returns>
     /// <response code="204">Carrito vaciado y eliminado con éxito.</response>
+    /// <response code="400">El userId no tiene formato GUID válido.</response>
     /// <response code="404">Si el usuario no tiene un carrito activo. Código de error: CRT-001</response>
     /// <response code="500">Error inesperado en servicio o persistencia. Código de error: CRT-005</response>
     [HttpDelete("{userId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
     public IActionResult ClearCart(Guid userId)
