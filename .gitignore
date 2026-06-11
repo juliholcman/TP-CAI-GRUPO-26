@@ -6,3 +6,7 @@ obj/
 
 **/logs/*
 !**/logs/.gitkeep
+
+*.db
+*.db-shm
+*.db-wal

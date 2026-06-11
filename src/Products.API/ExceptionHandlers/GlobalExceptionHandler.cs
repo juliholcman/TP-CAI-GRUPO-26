@@ -28,7 +28,7 @@ public class GlobalExceptionHandler : IExceptionHandler
             status = 500,
             detail = "Ocurrió un error inesperado en el servidor.",
             instance = context.Request.Path.Value,
-            errorCode = "PRD-500",
+            errorCode = "PRD-005",
             errorMessage = "Error interno del servidor."
         }, cancellationToken);
 

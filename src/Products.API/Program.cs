@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Products.API.Data;
+using Products.API.Data.Repositories;
 using Products.API.ExceptionHandlers;
 using Products.API.Services;
 using Serilog;
@@ -23,7 +25,9 @@ builder.Services.AddOpenApi(options =>
     });
 });
 builder.Services.AddHealthChecks();
-builder.Services.AddSingleton<ProductService>();
+builder.Services.AddSingleton<DatabaseInitializer>();
+builder.Services.AddScoped<ProductRepository>();
+builder.Services.AddScoped<ProductService>();
 
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<ConflictExceptionHandler>();
@@ -33,6 +37,11 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().Initialize();
+}
 
 app.Use(async (context, next) =>
 {
