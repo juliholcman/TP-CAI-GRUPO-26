@@ -44,7 +44,14 @@ builder.Services.AddControllers()
         };
     });
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Info.Title = "Orders API";
+        return Task.CompletedTask;
+    });
+});
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<OrdersApiExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -83,6 +90,7 @@ app.MapOpenApi();
 
 app.UseSwaggerUI(options =>
 {
+    options.RoutePrefix = "swagger";
     options.SwaggerEndpoint("/openapi/v1.json", "Orders API");
 });
 
