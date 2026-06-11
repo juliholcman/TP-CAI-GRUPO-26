@@ -1,3 +1,4 @@
+using Products.API.Data.Repositories;
 using Products.API.DTOs.Requests;
 using Products.API.DTOs.Responses;
 using Products.API.Exceptions;
@@ -7,88 +8,35 @@ namespace Products.API.Services;
 
 public class ProductService
 {
-    private readonly List<Product> _products =
-    [
-        new()
-        {
-            Id = Guid.Parse("b69b109d-9c5c-4f68-9942-a0ba2f4710b1"),
-            Nombre = "Notebook Lenovo IdeaPad",
-            Descripcion = "Notebook para trabajo y estudio",
-            Precio = 899999.99m,
-            Stock = 12,
-            Categoria = "Tecnologia",
-            FechaCreacion = new DateTime(2026, 1, 10, 0, 0, 0, DateTimeKind.Utc),
-            DeletedAt = null
-        },
-        new()
-        {
-            Id = Guid.Parse("3b1c1b9f-5c49-4944-b6ce-d6edc40a42a7"),
-            Nombre = "Mouse Logitech M280",
-            Descripcion = "Mouse inalambrico ergonomico",
-            Precio = 24999.50m,
-            Stock = 35,
-            Categoria = "Accesorios",
-            FechaCreacion = new DateTime(2026, 1, 12, 0, 0, 0, DateTimeKind.Utc),
-            DeletedAt = null
-        },
-        new()
-        {
-            Id = Guid.Parse("975c2b86-c5d7-4921-93fe-96a42f8323f6"),
-            Nombre = "Teclado mecanico",
-            Descripcion = "Teclado mecanico compacto",
-            Precio = 79999.00m,
-            Stock = 0,
-            Categoria = "Accesorios",
-            FechaCreacion = new DateTime(2026, 1, 15, 0, 0, 0, DateTimeKind.Utc),
-            DeletedAt = DateTime.UtcNow
-        }
-    ];
+    private readonly ProductRepository _productRepository;
 
-    public IEnumerable<ProductResponse> GetAll()
+    public ProductService(ProductRepository productRepository)
     {
-        return _products
-            .Where(product => product.DeletedAt is null)
-            .Select(product => new ProductResponse
-            {
-                Id = product.Id,
-                Nombre = product.Nombre,
-                Descripcion = product.Descripcion,
-                Precio = product.Precio,
-                Stock = product.Stock,
-                Categoria = product.Categoria,
-                FechaCreacion = product.FechaCreacion
-            });
+        _productRepository = productRepository;
     }
 
-    public ProductResponse GetById(Guid id)
+    public async Task<IReadOnlyCollection<ProductResponse>> GetAllAsync()
     {
-        var product = _products.FirstOrDefault(p => p.Id == id && p.DeletedAt is null);
-        if (product is null)
-        {
-            throw new NotFoundException("PRD-001", "Producto no encontrado.");
-        }
-
-        return new ProductResponse
-        {
-            Id = product.Id,
-            Nombre = product.Nombre,
-            Descripcion = product.Descripcion,
-            Precio = product.Precio,
-            Stock = product.Stock,
-            Categoria = product.Categoria,
-            FechaCreacion = product.FechaCreacion
-        };
+        var products = await _productRepository.GetAllAsync();
+        return products.Select(ToResponse).ToArray();
     }
 
-    public ProductResponse Create(CreateProductRequest request)
+    public async Task<ProductResponse> GetByIdAsync(Guid id)
     {
-        var exists = _products.Any(p =>
-            p.DeletedAt == null &&
-            p.Nombre.Equals(request.Nombre, StringComparison.OrdinalIgnoreCase) &&
-            p.Categoria.Equals(request.Categoria, StringComparison.OrdinalIgnoreCase));
+        var product = await GetExistingProductAsync(id);
+        return ToResponse(product);
+    }
 
-        if (exists)
-            throw new ConflictException("PRD-003", "Ya existe un producto con ese nombre en la categoría.");
+    public async Task<ProductResponse> CreateAsync(CreateProductRequest request)
+    {
+        ValidateProductData(request.Nombre, request.Precio, request.Stock, request.Categoria);
+
+        if (await _productRepository.ExistsByNameAndCategoryAsync(request.Nombre, request.Categoria))
+        {
+            throw new ConflictException(
+                "PRD-003",
+                "Ya existe un producto con ese nombre en la categoría.");
+        }
 
         var product = new Product
         {
@@ -98,37 +46,24 @@ public class ProductService
             Precio = request.Precio,
             Stock = request.Stock,
             Categoria = request.Categoria,
-            FechaCreacion = DateTime.UtcNow,
-            DeletedAt = null
+            FechaCreacion = DateTime.UtcNow
         };
 
-        _products.Add(product);
-
-        return new ProductResponse
-        {
-            Id = product.Id,
-            Nombre = product.Nombre,
-            Descripcion = product.Descripcion,
-            Precio = product.Precio,
-            Stock = product.Stock,
-            Categoria = product.Categoria,
-            FechaCreacion = product.FechaCreacion
-        };
+        await _productRepository.CreateAsync(product);
+        return ToResponse(product);
     }
-    public ProductResponse Update(Guid id, UpdateProductRequest request)
-    {
-        if (string.IsNullOrWhiteSpace(request.Nombre) || 
-            request.Precio <= 0 || 
-            request.Stock < 0 || 
-            string.IsNullOrWhiteSpace(request.Categoria))
-        {
-            throw new ValidationException("PRD-002", "Los datos del producto son inválidos.");
-        }
 
-        var product = _products.FirstOrDefault(p => p.Id == id && p.DeletedAt is null);
-        if (product is null)
+    public async Task<ProductResponse> UpdateAsync(Guid id, UpdateProductRequest request)
+    {
+        ValidateProductData(request.Nombre, request.Precio, request.Stock, request.Categoria);
+
+        var product = await GetExistingProductAsync(id);
+
+        if (await _productRepository.ExistsByNameAndCategoryAsync(request.Nombre, request.Categoria, id))
         {
-            throw new NotFoundException("PRD-001", "Producto no encontrado.");
+            throw new ConflictException(
+                "PRD-003",
+                "Ya existe un producto con ese nombre en la categoría.");
         }
 
         product.Nombre = request.Nombre;
@@ -137,6 +72,45 @@ public class ProductService
         product.Stock = request.Stock;
         product.Categoria = request.Categoria;
 
+        await _productRepository.UpdateAsync(product);
+        return ToResponse(product);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        await GetExistingProductAsync(id);
+
+        if (await _productRepository.HasActiveOrdersAsync(id))
+        {
+            throw new BusinessRuleException(
+                "PRD-004",
+                "El producto tiene órdenes activas y no puede eliminarse.");
+        }
+
+        await _productRepository.SoftDeleteAsync(id);
+    }
+
+    private async Task<Product> GetExistingProductAsync(Guid id)
+    {
+        var product = await _productRepository.GetByIdAsync(id);
+
+        return product
+            ?? throw new NotFoundException("PRD-001", "Producto no encontrado.");
+    }
+
+    private static void ValidateProductData(string nombre, decimal precio, int stock, string categoria)
+    {
+        if (string.IsNullOrWhiteSpace(nombre)
+            || precio <= 0
+            || stock < 0
+            || string.IsNullOrWhiteSpace(categoria))
+        {
+            throw new ValidationException("PRD-002", "Los datos del producto son inválidos.");
+        }
+    }
+
+    private static ProductResponse ToResponse(Product product)
+    {
         return new ProductResponse
         {
             Id = product.Id,
@@ -147,21 +121,5 @@ public class ProductService
             Categoria = product.Categoria,
             FechaCreacion = product.FechaCreacion
         };
-    }
-    public void Delete(Guid id)
-    {
-        var product = _products.FirstOrDefault(p => p.Id == id && p.DeletedAt is null);
-        if (product is null)
-        {
-            throw new NotFoundException("PRD-001", "Producto no encontrado.");
-        }
-
-        // Simulación: Si es este ID específico, consideramos que tiene órdenes activas
-        if (id == Guid.Parse("3b1c1b9f-5c49-4944-b6ce-d6edc40a42a7"))
-        {
-            throw new BusinessRuleException("PRD-004", "El producto tiene órdenes activas y no puede eliminarse.");
-        }
-
-        product.DeletedAt = DateTime.UtcNow;
     }
 }

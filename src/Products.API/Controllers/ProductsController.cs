@@ -23,13 +23,13 @@ public class ProductsController : ControllerBase
     /// Obtiene todos los productos activos.
     /// </summary>
     /// <response code="200">Retorna el listado de productos.</response>
-    /// <response code="500">Error interno del servidor. Código de error: PRD-500.</response>
+    /// <response code="500">Error interno del servidor. Código de error: PRD-005.</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ProductResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult<IEnumerable<ProductResponse>> Get()
+    public async Task<ActionResult<IEnumerable<ProductResponse>>> Get()
     {
-        return Ok(_productService.GetAll());
+        return Ok(await _productService.GetAllAsync());
     }
 
     /// <summary>
@@ -39,15 +39,15 @@ public class ProductsController : ControllerBase
     /// <response code="200">Retorna el producto solicitado.</response>
     /// <response code="400">El identificador no tiene formato GUID válido.</response>
     /// <response code="404">Producto no encontrado. Código de error: PRD-001.</response>
-    /// <response code="500">Error interno del servidor. Código de error: PRD-500.</response>
+    /// <response code="500">Error interno del servidor. Código de error: PRD-005.</response>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult<ProductResponse> GetById(Guid id)
+    public async Task<ActionResult<ProductResponse>> GetById(Guid id)
     {
-        return Ok(_productService.GetById(id));
+        return Ok(await _productService.GetByIdAsync(id));
     }
 
     /// <summary>
@@ -57,15 +57,15 @@ public class ProductsController : ControllerBase
     /// <response code="201">Producto creado correctamente.</response>
     /// <response code="400">Datos inválidos. Código de error: PRD-002.</response>
     /// <response code="409">Ya existe el producto. Código de error: PRD-003.</response>
-    /// <response code="500">Error interno del servidor. Código de error: PRD-500.</response>
+    /// <response code="500">Error interno del servidor. Código de error: PRD-005.</response>
     [HttpPost]
     [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult<ProductResponse> Create([FromBody] CreateProductRequest request)
+    public async Task<ActionResult<ProductResponse>> Create([FromBody] CreateProductRequest request)
     {
-        var response = _productService.Create(request);
+        var response = await _productService.CreateAsync(request);
 
         return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
@@ -78,15 +78,15 @@ public class ProductsController : ControllerBase
     /// <response code="200">Producto actualizado correctamente.</response>
     /// <response code="400">Identificador o datos inválidos. Código de error: PRD-002.</response>
     /// <response code="404">Producto no encontrado. Código de error: PRD-001.</response>
-    /// <response code="500">Error interno del servidor. Código de error: PRD-500.</response>
+    /// <response code="500">Error interno del servidor. Código de error: PRD-005.</response>
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult<ProductResponse> Update(Guid id, [FromBody] UpdateProductRequest request)
+    public async Task<ActionResult<ProductResponse>> Update(Guid id, [FromBody] UpdateProductRequest request)
     {
-        var response = _productService.Update(id, request);
+        var response = await _productService.UpdateAsync(id, request);
 
         return Ok(response);
     }
@@ -99,16 +99,16 @@ public class ProductsController : ControllerBase
     /// <response code="400">El identificador no tiene formato GUID válido.</response>
     /// <response code="404">Producto no encontrado. Código de error: PRD-001.</response>
     /// <response code="409">El producto tiene órdenes activas. Código de error: PRD-004.</response>
-    /// <response code="500">Error interno del servidor. Código de error: PRD-500.</response>
+    /// <response code="500">Error interno del servidor. Código de error: PRD-005.</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        _productService.Delete(id);
+        await _productService.DeleteAsync(id);
 
         return NoContent();
     }
