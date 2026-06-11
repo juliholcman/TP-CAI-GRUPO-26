@@ -1,3 +1,6 @@
+using System.Text.Json;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Products.API.ExceptionHandlers;
 using Products.API.Services;
 using Serilog;
@@ -12,6 +15,7 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddHealthChecks();
 builder.Services.AddSingleton<ProductService>();
 
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
@@ -56,6 +60,9 @@ app.UseHttpsRedirection();
 app.UseExceptionHandler();
 
 app.MapControllers();
+app.MapHealthChecks("/health", CreateHealthCheckOptions());
+app.MapHealthChecks("/health/ready", CreateHealthCheckOptions(check => check.Tags.Contains("ready")));
+app.MapHealthChecks("/health/live", CreateHealthCheckOptions(_ => false));
 
 app.Run();
 
@@ -98,4 +105,29 @@ static void EnrichFromRequest(IDiagnosticContext diagnosticContext, HttpContext 
     diagnosticContext.Set("RequestMethod", httpContext.Request.Method);
     diagnosticContext.Set("RequestPath", httpContext.Request.Path.Value ?? string.Empty);
     diagnosticContext.Set("StatusCode", httpContext.Response.StatusCode);
+}
+
+static HealthCheckOptions CreateHealthCheckOptions(Func<HealthCheckRegistration, bool>? predicate = null)
+{
+    var options = new HealthCheckOptions
+    {
+        ResponseWriter = WriteHealthCheckResponseAsync
+    };
+
+    if (predicate is not null)
+        options.Predicate = predicate;
+
+    return options;
+}
+
+static Task WriteHealthCheckResponseAsync(HttpContext context, HealthReport report)
+{
+    context.Response.ContentType = "application/json";
+
+    var response = JsonSerializer.Serialize(new
+    {
+        status = report.Status.ToString()
+    });
+
+    return context.Response.WriteAsync(response);
 }
