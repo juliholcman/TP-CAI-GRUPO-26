@@ -14,7 +14,14 @@ Log.Logger = CreateSerilogLogger("Cart.API", "logs/cart-api-.json");
 builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Info.Title = "Cart API";
+        return Task.CompletedTask;
+    });
+});
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<CartApiExceptionHandler>();
 builder.Services.AddExceptionHandler<UnhandledExceptionHandler>();
@@ -54,6 +61,7 @@ app.MapOpenApi();
 
 app.UseSwaggerUI(options =>
 {
+    options.RoutePrefix = "swagger";
     options.SwaggerEndpoint("/openapi/v1.json", "Cart API");
 });
 

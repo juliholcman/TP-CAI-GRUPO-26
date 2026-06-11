@@ -14,7 +14,14 @@ Log.Logger = CreateSerilogLogger("Products.API", "logs/products-api-.json");
 builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Info.Title = "Products API";
+        return Task.CompletedTask;
+    });
+});
 builder.Services.AddHealthChecks();
 builder.Services.AddSingleton<ProductService>();
 
@@ -52,6 +59,7 @@ app.MapOpenApi();
 
 app.UseSwaggerUI(options =>
 {
+    options.RoutePrefix = "swagger";
     options.SwaggerEndpoint("/openapi/v1.json", "Products API");
 });
 
