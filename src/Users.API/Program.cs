@@ -33,12 +33,12 @@ builder.Services.AddControllers()
             return new BadRequestObjectResult(new ErrorResponse
             {
                 Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                Title = "Bad Request",
+                Title = "Solicitud inválida",
                 Status = StatusCodes.Status400BadRequest,
-                Detail = string.Join("; ", errors.DefaultIfEmpty("Los datos del usuario son inválidos.")),
+                Detail = "Hubo un error de validación en los datos enviados.",
                 Instance = context.HttpContext.Request.Path.Value,
                 ErrorCode = "USR-002",
-                ErrorMessage = "Los datos del usuario son inválidos.",
+                ErrorMessage = string.Join("; ", errors.DefaultIfEmpty("Los datos del usuario son inválidos.")),
                 CorrelationId = correlationId
             });
         };

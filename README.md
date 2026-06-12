@@ -79,3 +79,20 @@ Ordenes         -> src/Orders.API/
 Carrito         -> src/Cart.API/
 Notificaciones  -> src/Notifications.API/
 ```
+
+## Arquitectura
+
+La solución adopta una arquitectura de **microservicios independientes**: cada servicio tiene su propia base de datos SQLite, expone una REST API en .NET 9 y se comunica con otros servicios exclusivamente por HTTP.
+
+![Diagrama de arquitectura de microservicios](docs/architecture/diagrama-cai.png)
+
+### Comunicaciones HTTP entre servicios
+
+| Origen              | Destino          | Propósito                            |
+|---------------------|------------------|--------------------------------------|
+| Cart.API            | Products.API     | Valida producto y stock              |
+| Orders.API          | Users.API        | Valida usuario                       |
+| Orders.API          | Products.API     | Valida productos, stock y precio     |
+| Notifications.API   | Users.API        | Valida usuario destinatario          |
+
+**Tecnologías transversales:** .NET Web API · SQLite + Dapper · Swagger/OpenAPI · Health Checks · Serilog · Correlation ID

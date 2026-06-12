@@ -33,7 +33,6 @@ public class CartRepository
             SELECT EXISTS (
                 SELECT 1 FROM carts
                 WHERE usuario_id = @UsuarioId
-                  AND deleted_at IS NULL
             );
             """;
 
@@ -69,8 +68,7 @@ public class CartRepository
             SELECT usuario_id AS UsuarioId,
                    fecha_actualizacion AS FechaActualizacion
             FROM carts
-            WHERE usuario_id = @UsuarioId
-              AND deleted_at IS NULL;
+            WHERE usuario_id = @UsuarioId;
             """;
 
         const string itemsSql =
@@ -105,11 +103,10 @@ public class CartRepository
     {
         const string sql =
             """
-            INSERT INTO carts (usuario_id, fecha_actualizacion, deleted_at)
-            VALUES (@UsuarioId, @FechaActualizacion, NULL)
+            INSERT INTO carts (usuario_id, fecha_actualizacion)
+            VALUES (@UsuarioId, @FechaActualizacion)
             ON CONFLICT(usuario_id) DO UPDATE
-                SET fecha_actualizacion = excluded.fecha_actualizacion,
-                    deleted_at          = NULL;
+                SET fecha_actualizacion = excluded.fecha_actualizacion;
             """;
 
         await using var connection = await OpenConnectionAsync();

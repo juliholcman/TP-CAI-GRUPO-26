@@ -26,11 +26,11 @@ public class NotificationRepository
     }
 
     /// <summary>
-    /// Obtiene todas las notificaciones de un usuario (excluye soft-deleted si aplica).
+    /// Obtiene todas las notificaciones de un usuario.
     /// </summary>
     public async Task<IReadOnlyCollection<Notification>> GetByUserIdAsync(Guid userId)
     {
-        var sql = $"SELECT {NotificationColumns} FROM notifications WHERE usuario_id = @UsuarioId AND deleted_at IS NULL ORDER BY fecha_envio;";
+        var sql = $"SELECT {NotificationColumns} FROM notifications WHERE usuario_id = @UsuarioId ORDER BY fecha_envio;";
 
         await using var connection = await OpenConnectionAsync();
         var rows = await connection.QueryAsync<NotificationRow>(sql, new { UsuarioId = userId.ToString() });
@@ -51,8 +51,7 @@ public class NotificationRepository
                 mensaje,
                 tipo,
                 estado,
-                fecha_envio,
-                deleted_at
+                fecha_envio
             )
             VALUES (
                 @Id,
@@ -60,8 +59,7 @@ public class NotificationRepository
                 @Mensaje,
                 @Tipo,
                 @Estado,
-                @FechaEnvio,
-                @DeletedAt
+                @FechaEnvio
             );
             """;
 
@@ -78,8 +76,7 @@ public class NotificationRepository
             """
             UPDATE notifications
             SET estado = @Estado
-            WHERE id = @Id
-              AND deleted_at IS NULL;
+            WHERE id = @Id;
             """;
 
         await using var connection = await OpenConnectionAsync();
@@ -97,7 +94,6 @@ public class NotificationRepository
                 SELECT 1
                 FROM notifications
                 WHERE usuario_id = @UsuarioId
-                  AND deleted_at IS NULL
             );
             """;
 
@@ -123,8 +119,7 @@ public class NotificationRepository
             notification.Mensaje,
             notification.Tipo,
             notification.Estado,
-            FechaEnvio = notification.FechaEnvio.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
-            DeletedAt = (string?)null
+            FechaEnvio = notification.FechaEnvio.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture)
         };
     }
 

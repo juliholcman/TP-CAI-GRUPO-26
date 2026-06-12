@@ -62,8 +62,3 @@ Each service must include:
 - /health
 - /health/ready
 - /health/live
-
-## Soft delete
-
-Do not implement soft delete unless the assignment or the existing model explicitly requires it.
-For DELETE endpoints, follow the API contract and expected status codes.

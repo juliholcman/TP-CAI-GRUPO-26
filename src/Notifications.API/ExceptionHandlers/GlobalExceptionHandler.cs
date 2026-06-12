@@ -31,7 +31,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         var problemDetails = new
         {
             type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
-            title = "Internal Server Error",
+            title = "Error interno del servidor",
             status = 500,
             detail = "Ocurrió un error inesperado al procesar la solicitud.",
             instance = context.Request.Path.Value,
