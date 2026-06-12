@@ -84,15 +84,39 @@ Notificaciones  -> src/Notifications.API/
 
 La solución adopta una arquitectura de **microservicios independientes**: cada servicio tiene su propia base de datos SQLite, expone una REST API en .NET 9 y se comunica con otros servicios exclusivamente por HTTP.
 
-![Diagrama de arquitectura de microservicios](docs/architecture/diagrama-cai.png)
+```
+╔══════════════════════════════════════════════════════════════════════════════════════════╗
+║            Arquitectura de Microservicios — TP CAI E-Commerce                           ║
+╚══════════════════════════════════════════════════════════════════════════════════════════╝
 
-### Comunicaciones HTTP entre servicios
+ Comunicaciones HTTP entre microservicios (··> = llamada HTTP):
+ ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+ Notifications.API ·····················································> Users.API
+                                                     Valida usuario destinatario
 
-| Origen              | Destino          | Propósito                            |
-|---------------------|------------------|--------------------------------------|
-| Cart.API            | Products.API     | Valida producto y stock              |
-| Orders.API          | Users.API        | Valida usuario                       |
-| Orders.API          | Products.API     | Valida productos, stock y precio     |
-| Notifications.API   | Users.API        | Valida usuario destinatario          |
+ Cart.API ··········································> Products.API
+                                  Valida producto y stock
 
-**Tecnologías transversales:** .NET Web API · SQLite + Dapper · Swagger/OpenAPI · Health Checks · Serilog · Correlation ID
+ Orders.API ···················> Users.API
+                 Valida usuario
+
+ Orders.API ········> Products.API
+     Valida productos, stock y precio
+ ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
+ Microservicios y persistencia propia (-> = guarda/lee en su base de datos):
+
+ ┌─────────────┐  ┌──────────────┐  ┌─────────────┐  ┌───────────┐  ┌────────────────────┐
+ │  Users.API  │  │ Products.API │  │ Orders.API  │  │ Cart.API  │  │  Notifications.API │
+ └──────┬──────┘  └──────┬───────┘  └──────┬──────┘  └─────┬─────┘  └─────────┬──────────┘
+        │                │                  │               │                   │
+        ▼                ▼                  ▼               ▼                   ▼
+   ┌──────────┐  ┌─────────────┐  ┌────────────┐  ┌──────────┐  ┌──────────────────┐
+   │ users.db │  │ products.db │  │ orders.db  │  │ cart.db  │  │ notifications.db │
+   └──────────┘  └─────────────┘  └────────────┘  └──────────┘  └──────────────────┘
+
+ Nota: Orders.API no llama a Notifications.API en la implementacion actual.
+
+ Tecnologias transversales:
+ .NET Web API · SQLite + Dapper · Swagger/OpenAPI · Health Checks · Serilog · Correlation ID
+```
