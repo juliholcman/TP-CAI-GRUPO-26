@@ -5,13 +5,13 @@ const path = require('path');
 const targetApi = process.argv[2];
 
 if (!targetApi) {
-    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users");
+    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users\nnode run_qa.js cart");
     process.exit(1);
 }
 
-if (targetApi !== 'products' && targetApi !== 'users') {
-    console.log("Por ahora solo está soportado: products, users");
-    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users");
+if (targetApi !== 'products' && targetApi !== 'users' && targetApi !== 'cart') {
+    console.log("Por ahora solo está soportado: products, users, cart");
+    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users\nnode run_qa.js cart");
     process.exit(1);
 }
 
@@ -25,6 +25,11 @@ const config = {
         name: 'Users.API',
         swaggerUrl: 'https://localhost:61011/swagger/index.html',
         docsPath: '../docs/users'
+    },
+    cart: {
+        name: 'Cart.API',
+        swaggerUrl: 'https://localhost:61016/swagger/index.html',
+        docsPath: '../docs/cart'
     }
 };
 
@@ -357,6 +362,163 @@ async function runUsers(page) {
     await closeEndpoint(page, selLogin);
 }
 
+async function runCart(page) {
+    const uniqueId = Date.now();
+    const productName = `Producto QA Cart ${uniqueId}`;
+    const validProduct = {
+        "nombre": productName,
+        "descripcion": "Producto creado para pruebas de carrito",
+        "precio": 100,
+        "stock": 10,
+        "categoria": "QA"
+    };
+
+    console.log('Creating valid product via HTTP in Products.API...');
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    let productId = '';
+    try {
+        const response = await fetch('https://localhost:61008/api/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(validProduct)
+        });
+        const product = await response.json();
+        productId = product.id;
+        console.log(`Created Product ID: ${productId}`);
+    } catch (e) {
+        console.error('Failed to create product via HTTP', e);
+        throw new Error('Cannot continue without product');
+    }
+
+    const userId = '11111111-1111-1111-1111-111111111111';
+    const missingUserId = '22222222-2222-2222-2222-222222222222';
+    const missingProductId = '00000000-0000-0000-0000-000000000000';
+
+    const selPostItem = '#operations-Cart-post_api_Cart__userId__items';
+    const selGetCart = '#operations-Cart-get_api_Cart__userId_';
+    const selPutItem = '#operations-Cart-put_api_Cart__userId__items__productId_';
+    const selDelItem = '#operations-Cart-delete_api_Cart__userId__items__productId_';
+    const selDelCart = '#operations-Cart-delete_api_Cart__userId_';
+
+    // ── A. POST /api/Cart/{userId}/items válido ──
+    console.log('A. POST /api/Cart/{userId}/items válido');
+    await openEndpoint(page, selPostItem);
+    await clearAndTypeInput(page, `${selPostItem} input[placeholder="userId"]`, userId);
+    await clearTextArea(page, `${selPostItem} .body-param__text`);
+    const addItemValid = { "productId": productId, "cantidad": 1 };
+    await page.type(`${selPostItem} .body-param__text`, JSON.stringify(addItemValid, null, 2));
+    let executeBtn = await page.$(`${selPostItem} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostItem, 'screenshots/add-item-200.png');
+    await closeEndpoint(page, selPostItem);
+
+    // ── B. GET /api/Cart/{userId} ──
+    console.log('B. GET /api/Cart/{userId}');
+    await openEndpoint(page, selGetCart);
+    await clearAndTypeInput(page, `${selGetCart} input[placeholder="userId"]`, userId);
+    executeBtn = await page.$(`${selGetCart} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selGetCart, 'screenshots/get-cart-200.png');
+    await closeEndpoint(page, selGetCart);
+
+    // ── C. PUT /api/Cart/{userId}/items/{productId} ──
+    console.log('C. PUT /api/Cart/{userId}/items/{productId}');
+    await openEndpoint(page, selPutItem);
+    await clearAndTypeInput(page, `${selPutItem} input[placeholder="userId"]`, userId);
+    await clearAndTypeInput(page, `${selPutItem} input[placeholder="productId"]`, productId);
+    await clearTextArea(page, `${selPutItem} .body-param__text`);
+    const updateItemValid = { "cantidad": 2 };
+    await page.type(`${selPutItem} .body-param__text`, JSON.stringify(updateItemValid, null, 2));
+    executeBtn = await page.$(`${selPutItem} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPutItem, 'screenshots/update-item-200.png');
+    await closeEndpoint(page, selPutItem);
+
+    // ── D. DELETE /api/Cart/{userId}/items/{productId} ──
+    console.log('D. DELETE /api/Cart/{userId}/items/{productId}');
+    await openEndpoint(page, selDelItem);
+    await clearAndTypeInput(page, `${selDelItem} input[placeholder="userId"]`, userId);
+    await clearAndTypeInput(page, `${selDelItem} input[placeholder="productId"]`, productId);
+    executeBtn = await page.$(`${selDelItem} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selDelItem, 'screenshots/delete-item-204.png');
+    await closeEndpoint(page, selDelItem);
+
+    // ── E. DELETE /api/Cart/{userId} ──
+    console.log('E. DELETE /api/Cart/{userId}');
+    // Add an item again first so the cart exists
+    console.log('   -> Re-adding item to clear cart');
+    await openEndpoint(page, selPostItem);
+    await clearAndTypeInput(page, `${selPostItem} input[placeholder="userId"]`, userId);
+    await clearTextArea(page, `${selPostItem} .body-param__text`);
+    await page.type(`${selPostItem} .body-param__text`, JSON.stringify(addItemValid, null, 2));
+    executeBtn = await page.$(`${selPostItem} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await closeEndpoint(page, selPostItem);
+
+    await openEndpoint(page, selDelCart);
+    await clearAndTypeInput(page, `${selDelCart} input[placeholder="userId"]`, userId);
+    executeBtn = await page.$(`${selDelCart} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selDelCart, 'screenshots/clear-cart-204.png');
+    await closeEndpoint(page, selDelCart);
+
+    // ── F. GET carrito inexistente (CRT-001) ──
+    console.log('F. GET carrito inexistente (CRT-001)');
+    await openEndpoint(page, selGetCart);
+    await clearAndTypeInput(page, `${selGetCart} input[placeholder="userId"]`, missingUserId);
+    executeBtn = await page.$(`${selGetCart} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selGetCart, 'errors/crt-001-cart-not-found.png');
+    await closeEndpoint(page, selGetCart);
+
+    // ── G. POST producto inexistente (CRT-002) ──
+    console.log('G. POST producto inexistente (CRT-002)');
+    await openEndpoint(page, selPostItem);
+    await clearAndTypeInput(page, `${selPostItem} input[placeholder="userId"]`, userId);
+    await clearTextArea(page, `${selPostItem} .body-param__text`);
+    const addItemMissingProduct = { "productId": missingProductId, "cantidad": 1 };
+    await page.type(`${selPostItem} .body-param__text`, JSON.stringify(addItemMissingProduct, null, 2));
+    executeBtn = await page.$(`${selPostItem} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostItem, 'errors/crt-002-product-not-found.png');
+    await closeEndpoint(page, selPostItem);
+
+    // ── H. POST stock insuficiente (CRT-003) ──
+    console.log('H. POST stock insuficiente (CRT-003)');
+    await openEndpoint(page, selPostItem);
+    await clearAndTypeInput(page, `${selPostItem} input[placeholder="userId"]`, userId);
+    await clearTextArea(page, `${selPostItem} .body-param__text`);
+    const addItemHighQuantity = { "productId": productId, "cantidad": 9999 };
+    await page.type(`${selPostItem} .body-param__text`, JSON.stringify(addItemHighQuantity, null, 2));
+    executeBtn = await page.$(`${selPostItem} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostItem, 'errors/crt-003-stock-insufficient.png');
+    await closeEndpoint(page, selPostItem);
+
+    // ── I. POST cantidad inválida (CRT-004) ──
+    console.log('I. POST cantidad inválida (CRT-004)');
+    await openEndpoint(page, selPostItem);
+    await clearAndTypeInput(page, `${selPostItem} input[placeholder="userId"]`, userId);
+    await clearTextArea(page, `${selPostItem} .body-param__text`);
+    const addItemInvalidQuantity = { "productId": productId, "cantidad": 0 };
+    await page.type(`${selPostItem} .body-param__text`, JSON.stringify(addItemInvalidQuantity, null, 2));
+    executeBtn = await page.$(`${selPostItem} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostItem, 'errors/crt-004-invalid-quantity.png');
+    await closeEndpoint(page, selPostItem);
+}
+
 async function run() {
     console.log('Launching browser...');
     const browser = await puppeteer.launch({
@@ -381,6 +543,8 @@ async function run() {
             await runProducts(page);
         } else if (targetApi === 'users') {
             await runUsers(page);
+        } else if (targetApi === 'cart') {
+            await runCart(page);
         }
     } catch (err) {
         console.error('Error during execution:', err);
