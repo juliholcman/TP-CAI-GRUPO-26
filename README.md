@@ -86,13 +86,26 @@ La solución adopta una arquitectura de **microservicios independientes**: cada 
 
 ![Diagrama de arquitectura de microservicios](docs/architecture/diagrama-cai.png)
 
+### Cómo leer el diagrama
+
+- **Cajas rectangulares** → cada microservicio (REST API independiente).
+- **Cilindros** → base de datos propia de cada servicio (SQLite).
+- **Flecha sólida vertical** (API → DB) → el servicio guarda/lee datos en su propia base de datos.
+- **Flecha punteada horizontal** → comunicación HTTP entre servicios. Cada flecha está en un nivel distinto (escalera) para que el origen y destino sean fáciles de distinguir.
+
 ### Comunicaciones HTTP entre servicios
 
-| Origen              | Destino          | Propósito                            |
-|---------------------|------------------|--------------------------------------|
-| Cart.API            | Products.API     | Valida producto y stock              |
-| Orders.API          | Users.API        | Valida usuario                       |
-| Orders.API          | Products.API     | Valida productos, stock y precio     |
-| Notifications.API   | Users.API        | Valida usuario destinatario          |
+Las flechas punteadas se dibujan de arriba hacia abajo en este orden:
 
-**Tecnologías transversales:** .NET Web API · SQLite + Dapper · Swagger/OpenAPI · Health Checks · Serilog · Correlation ID
+| Nivel | Origen | Destino | Propósito |
+|---|---|---|---|
+| 1 (más alto) | Notifications.API | Users.API | Valida usuario destinatario |
+| 2 | Cart.API | Products.API | Valida producto y stock |
+| 3 | Orders.API | Users.API | Valida usuario |
+| 4 (más bajo) | Orders.API | Products.API | Valida productos, stock y precio |
+
+> `Orders.API` **no llama** a `Notifications.API` en la implementación actual; esa flecha no está en el diagrama.
+
+### Tecnologías transversales
+
+Todos los microservicios comparten: **.NET Web API · SQLite + Dapper · Swagger/OpenAPI · Health Checks · Serilog · Correlation ID**
