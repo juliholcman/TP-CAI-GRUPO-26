@@ -18,8 +18,7 @@ public class ProductRepository
         precio AS Precio,
         stock AS Stock,
         categoria AS Categoria,
-        fecha_creacion AS FechaCreacion,
-        deleted_at AS DeletedAt
+        fecha_creacion AS FechaCreacion
         """;
 
     private readonly string _connectionString;
@@ -32,7 +31,7 @@ public class ProductRepository
 
     public async Task<IReadOnlyCollection<Product>> GetAllAsync()
     {
-        var sql = $"SELECT {ProductColumns} FROM products WHERE deleted_at IS NULL ORDER BY fecha_creacion;";
+        var sql = $"SELECT {ProductColumns} FROM products ORDER BY fecha_creacion;";
 
         await using var connection = await OpenConnectionAsync();
         var rows = await connection.QueryAsync<ProductRow>(sql);
@@ -42,7 +41,7 @@ public class ProductRepository
 
     public async Task<Product?> GetByIdAsync(Guid id)
     {
-        var sql = $"SELECT {ProductColumns} FROM products WHERE id = @Id AND deleted_at IS NULL;";
+        var sql = $"SELECT {ProductColumns} FROM products WHERE id = @Id;";
 
         await using var connection = await OpenConnectionAsync();
         var row = await connection.QuerySingleOrDefaultAsync<ProductRow>(sql, new { Id = id.ToString() });
@@ -61,8 +60,7 @@ public class ProductRepository
                 precio,
                 stock,
                 categoria,
-                fecha_creacion,
-                deleted_at
+                fecha_creacion
             )
             VALUES (
                 @Id,
@@ -71,8 +69,7 @@ public class ProductRepository
                 @Precio,
                 @Stock,
                 @Categoria,
-                @FechaCreacion,
-                @DeletedAt
+                @FechaCreacion
             );
             """;
 
@@ -90,30 +87,19 @@ public class ProductRepository
                 precio = @Precio,
                 stock = @Stock,
                 categoria = @Categoria
-            WHERE id = @Id
-              AND deleted_at IS NULL;
+            WHERE id = @Id;
             """;
 
         await using var connection = await OpenConnectionAsync();
         await connection.ExecuteAsync(sql, ToParameters(product));
     }
 
-    public async Task SoftDeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
-        const string sql =
-            """
-            UPDATE products
-            SET deleted_at = @DeletedAt
-            WHERE id = @Id
-              AND deleted_at IS NULL;
-            """;
+        const string sql = "DELETE FROM products WHERE id = @Id;";
 
         await using var connection = await OpenConnectionAsync();
-        await connection.ExecuteAsync(sql, new
-        {
-            Id = id.ToString(),
-            DeletedAt = DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture)
-        });
+        await connection.ExecuteAsync(sql, new { Id = id.ToString() });
     }
 
     public async Task<bool> ExistsByNameAndCategoryAsync(
@@ -126,8 +112,7 @@ public class ProductRepository
             SELECT EXISTS (
                 SELECT 1
                 FROM products
-                WHERE deleted_at IS NULL
-                  AND nombre = @Nombre COLLATE NOCASE
+                WHERE nombre = @Nombre COLLATE NOCASE
                   AND categoria = @Categoria COLLATE NOCASE
                   AND (@ExcludeId IS NULL OR id <> @ExcludeId)
             );
@@ -164,8 +149,7 @@ public class ProductRepository
             Precio = Convert.ToDouble(product.Precio, CultureInfo.InvariantCulture),
             product.Stock,
             product.Categoria,
-            FechaCreacion = product.FechaCreacion.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
-            DeletedAt = product.DeletedAt?.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture)
+            FechaCreacion = product.FechaCreacion.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture)
         };
     }
 
@@ -182,13 +166,7 @@ public class ProductRepository
             FechaCreacion = DateTime.Parse(
                 row.FechaCreacion,
                 CultureInfo.InvariantCulture,
-                DateTimeStyles.RoundtripKind),
-            DeletedAt = string.IsNullOrWhiteSpace(row.DeletedAt)
-                ? null
-                : DateTime.Parse(
-                    row.DeletedAt,
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.RoundtripKind)
+                DateTimeStyles.RoundtripKind)
         };
     }
 
@@ -201,6 +179,5 @@ public class ProductRepository
         public int Stock { get; init; }
         public string Categoria { get; init; } = string.Empty;
         public string FechaCreacion { get; init; } = string.Empty;
-        public string? DeletedAt { get; init; }
     }
 }

@@ -87,7 +87,7 @@ public class ProductService
                 "El producto tiene órdenes activas y no puede eliminarse.");
         }
 
-        await _productRepository.SoftDeleteAsync(id);
+        await _productRepository.DeleteAsync(id);
     }
 
     private async Task<Product> GetExistingProductAsync(Guid id)

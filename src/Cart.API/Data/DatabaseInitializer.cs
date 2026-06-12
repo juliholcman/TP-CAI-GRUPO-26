@@ -22,8 +22,7 @@ public class DatabaseInitializer
             """
             CREATE TABLE IF NOT EXISTS carts (
                 usuario_id       TEXT PRIMARY KEY,
-                fecha_actualizacion TEXT NOT NULL,
-                deleted_at       TEXT NULL
+                fecha_actualizacion TEXT NOT NULL
             );
             """);
 
