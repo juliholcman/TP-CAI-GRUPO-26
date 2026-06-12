@@ -152,16 +152,44 @@ Estas herramientas fueron usadas como apoyo técnico. El equipo revisó manualme
 
 ## Arquitectura
 
-La solución adopta una arquitectura de **microservicios independientes**: cada servicio tiene su propia base de datos SQLite, expone una REST API en .NET 9 y se comunica con otros servicios exclusivamente por HTTP.
+La solución está compuesta por cinco microservicios independientes. Cada servicio expone su propia REST API, cuenta con su propia base de datos SQLite y se comunica con otros servicios mediante HTTP.
+
+```text
+┌──────────────────────────────────────────────────────────────────────┐
+│                 Arquitectura de Microservicios - TP CAI              │
+└──────────────────────────────────────────────────────────────────────┘
+
+Comunicaciones HTTP entre servicios:
+
+Notifications.API ────────────────► Users.API
+                                    Valida usuario destinatario
+
+Cart.API ─────────────────────────► Products.API
+                                    Valida producto y stock
+
+Orders.API ───────────────────────► Users.API
+                                    Valida usuario
+
+Orders.API ───────────────────────► Products.API
+                                    Valida productos, stock y precio
 
 
-### Comunicaciones HTTP entre servicios
+Persistencia por microservicio:
 
-| Origen              | Destino          | Propósito                            |
-|---------------------|------------------|--------------------------------------|
-| Cart.API            | Products.API     | Valida producto y stock              |
-| Orders.API          | Users.API        | Valida usuario                       |
-| Orders.API          | Products.API     | Valida productos, stock y precio     |
-| Notifications.API   | Users.API        | Valida usuario destinatario          |
+┌───────────────┐      ┌────────────────┐      ┌──────────────┐
+│   Users.API   │      │  Products.API  │      │  Orders.API  │
+└───────┬───────┘      └───────┬────────┘      └──────┬───────┘
+        │                      │                      │
+        ▼                      ▼                      ▼
+   [users.db]            [products.db]            [orders.db]
+
+
+┌───────────────┐      ┌─────────────────────┐
+│   Cart.API    │      │  Notifications.API  │
+└───────┬───────┘      └──────────┬──────────┘
+        │                         │
+        ▼                         ▼
+   [cart.db]              [notifications.db]
+```
 
 **Tecnologías transversales:** .NET Web API · SQLite + Dapper · Swagger/OpenAPI · Health Checks · Serilog · Correlation ID
