@@ -16,40 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 Log.Logger = CreateSerilogLogger("Products.API", "logs/products-api-.json");
 builder.Host.UseSerilog();
 
-builder.Services.AddControllers()
-    .ConfigureApiBehaviorOptions(options =>
-    {
-        options.InvalidModelStateResponseFactory = context =>
-        {
-            var errors = context.ModelState
-                .Where(e => e.Value?.Errors.Count > 0)
-                .SelectMany(x => x.Value!.Errors)
-                .Select(x => string.IsNullOrEmpty(x.ErrorMessage) ? x.Exception?.Message : x.ErrorMessage)
-                .ToList();
-
-            var errorMessage = string.Join("; ", errors);
-            if (string.IsNullOrWhiteSpace(errorMessage))
-            {
-                errorMessage = "Los datos del producto son inválidos.";
-            }
-
-            var correlationId = context.HttpContext.Response.Headers["X-Correlation-Id"].FirstOrDefault()
-                             ?? context.HttpContext.Request.Headers["X-Correlation-Id"].FirstOrDefault()
-                             ?? context.HttpContext.TraceIdentifier;
-
-            return new BadRequestObjectResult(new
-            {
-                type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                title = "Solicitud inválida",
-                status = 400,
-                detail = "Hubo un error de validación en los datos enviados.",
-                instance = context.HttpContext.Request.Path.Value,
-                errorCode = "PRD-002",
-                errorMessage = errorMessage,
-                correlationId = correlationId
-            });
-        };
-    });
+builder.Services.AddControllers();
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, _, _) =>
@@ -69,6 +36,40 @@ builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<BusinessRuleExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(e => e.Value?.Errors.Count > 0)
+            .SelectMany(x => x.Value!.Errors)
+            .Select(x => string.IsNullOrEmpty(x.ErrorMessage) ? x.Exception?.Message : x.ErrorMessage)
+            .ToList();
+
+        var errorMessage = string.Join("; ", errors);
+        if (string.IsNullOrWhiteSpace(errorMessage))
+        {
+            errorMessage = "Los datos del producto son inválidos.";
+        }
+
+        var correlationId = context.HttpContext.Response.Headers["X-Correlation-Id"].FirstOrDefault()
+                         ?? context.HttpContext.Request.Headers["X-Correlation-Id"].FirstOrDefault()
+                         ?? context.HttpContext.TraceIdentifier;
+
+        return new BadRequestObjectResult(new
+        {
+            type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+            title = "Solicitud inválida",
+            status = 400,
+            detail = "Hubo un error de validación en los datos enviados.",
+            instance = context.HttpContext.Request.Path.Value,
+            errorCode = "PRD-002",
+            errorMessage = errorMessage,
+            correlationId = correlationId
+        });
+    };
+});
 
 var app = builder.Build();
 
