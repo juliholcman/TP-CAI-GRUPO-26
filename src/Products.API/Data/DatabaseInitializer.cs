@@ -29,8 +29,7 @@ public class DatabaseInitializer
                 precio REAL NOT NULL,
                 stock INTEGER NOT NULL,
                 categoria TEXT NOT NULL,
-                fecha_creacion TEXT NOT NULL,
-                deleted_at TEXT NULL
+                fecha_creacion TEXT NOT NULL
             );
             """);
 
@@ -48,8 +47,7 @@ public class DatabaseInitializer
                 precio,
                 stock,
                 categoria,
-                fecha_creacion,
-                deleted_at
+                fecha_creacion
             )
             VALUES (
                 @Id,
@@ -58,8 +56,7 @@ public class DatabaseInitializer
                 @Precio,
                 @Stock,
                 @Categoria,
-                @FechaCreacion,
-                @DeletedAt
+                @FechaCreacion
             );
             """;
 
@@ -84,17 +81,6 @@ public class DatabaseInitializer
                 Stock = 35,
                 Categoria = "Accesorios",
                 FechaCreacion = new DateTime(2026, 1, 12, 0, 0, 0, DateTimeKind.Utc)
-            },
-            new Product
-            {
-                Id = Guid.Parse("975c2b86-c5d7-4921-93fe-96a42f8323f6"),
-                Nombre = "Teclado mecanico",
-                Descripcion = "Teclado mecanico compacto",
-                Precio = 79999.00m,
-                Stock = 0,
-                Categoria = "Accesorios",
-                FechaCreacion = new DateTime(2026, 1, 15, 0, 0, 0, DateTimeKind.Utc),
-                DeletedAt = new DateTime(2026, 1, 16, 0, 0, 0, DateTimeKind.Utc)
             }
         };
 
@@ -111,8 +97,7 @@ public class DatabaseInitializer
             Precio = Convert.ToDouble(product.Precio, CultureInfo.InvariantCulture),
             product.Stock,
             product.Categoria,
-            FechaCreacion = product.FechaCreacion.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
-            DeletedAt = product.DeletedAt?.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture)
+            FechaCreacion = product.FechaCreacion.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture)
         };
     }
 }

@@ -9,5 +9,4 @@ public class Product
     public int Stock { get; set; }
     public string Categoria { get; set; } = string.Empty;
     public DateTime FechaCreacion { get; set; }
-    public DateTime? DeletedAt { get; set; }
 }

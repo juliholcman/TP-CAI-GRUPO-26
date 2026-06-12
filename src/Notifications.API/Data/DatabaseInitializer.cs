@@ -26,8 +26,7 @@ public class DatabaseInitializer
                 mensaje TEXT NOT NULL,
                 tipo TEXT NOT NULL,
                 estado TEXT NOT NULL,
-                fecha_envio TEXT NOT NULL,
-                deleted_at TEXT NULL
+                fecha_envio TEXT NOT NULL
             );
             """);
     }
