@@ -86,8 +86,6 @@ La solución adopta una arquitectura de **microservicios independientes**: cada 
 
 ![Diagrama de arquitectura de microservicios](docs/architecture/diagrama-cai.png)
 
-[Ver diagrama editable (draw.io)](docs/architecture/diagrama-cai.drawio) · [Documentación de arquitectura](docs/architecture/README.md)
-
 ### Comunicaciones HTTP entre servicios
 
 | Origen              | Destino          | Propósito                            |
