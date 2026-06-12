@@ -25,7 +25,7 @@ namespace Notifications.API.ExceptionHandlers
             var problemDetails = new
             {
                 type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                title = "Bad Request",
+                title = "Solicitud inválida",
                 status = 400,
                 detail = "La solicitud contiene datos inválidos o no permitidos.",
                 instance = context.Request.Path.Value,

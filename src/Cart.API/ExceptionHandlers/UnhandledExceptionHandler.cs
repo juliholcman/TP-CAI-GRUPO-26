@@ -31,7 +31,7 @@ public class UnhandledExceptionHandler : IExceptionHandler
         await context.Response.WriteAsJsonAsync(new ErrorResponse
         {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
-            Title = "Internal Server Error",
+            Title = "Error interno del servidor",
             Status = StatusCodes.Status500InternalServerError,
             Detail = "Error interno al procesar el carrito.",
             Instance = context.Request.Path.Value,

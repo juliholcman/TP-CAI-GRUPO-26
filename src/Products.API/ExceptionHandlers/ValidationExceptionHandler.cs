@@ -18,7 +18,7 @@ public class ValidationExceptionHandler : IExceptionHandler
         await context.Response.WriteAsJsonAsync(new
         {
             type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-            title = "Bad Request",
+            title = "Solicitud inválida",
             status = 400,
             detail = "Hubo un error de validación en los datos enviados.",
             instance = context.Request.Path.Value,

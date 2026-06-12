@@ -18,7 +18,7 @@ public class BusinessRuleExceptionHandler : IExceptionHandler
         await context.Response.WriteAsJsonAsync(new
         {
             type = "https://tools.ietf.org/html/rfc7231#section-6.5.8",
-            title = "Conflict",
+            title = "Conflicto de regla de negocio",
             status = 409,
             detail = "Hubo un conflicto de reglas de negocio.",
             instance = context.Request.Path.Value,

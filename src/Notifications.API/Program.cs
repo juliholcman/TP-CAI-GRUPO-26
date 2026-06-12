@@ -34,7 +34,7 @@ builder.Services.AddControllers()
             var problem = new
             {
                 type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                title = "Bad Request",
+                title = "Solicitud inválida",
                 status = 400,
                 detail = "La solicitud contiene datos inválidos o faltantes.",
                 instance = context.HttpContext.Request.Path.Value,

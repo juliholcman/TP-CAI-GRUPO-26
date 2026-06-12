@@ -83,7 +83,7 @@ public class NotificationService
         {
             throw new BusinessRuleException(
                 "NTF-002",
-                "UsuarioId no puede ser Guid.Empty.");
+                "El identificador del usuario es obligatorio y no puede estar vacío.");
         }
 
         // Tipo inválido: NTF-002
@@ -91,7 +91,7 @@ public class NotificationService
         {
             throw new BusinessRuleException(
                 "NTF-002",
-                $"El Tipo '{request.Tipo}' no es válido. Valores permitidos: {string.Join(", ", TiposPermitidos)}.");
+                $"El tipo de notificación '{request.Tipo}' no es válido. Los valores permitidos son: {string.Join(", ", TiposPermitidos)}.");
         }
 
         // Usuario inexistente: NTF-001
@@ -99,7 +99,7 @@ public class NotificationService
         {
             throw new NotFoundException(
                 "NTF-001",
-                $"El usuario con id '{request.UsuarioId}' no existe.");
+                $"No se encontró un usuario con el identificador '{request.UsuarioId}'.");
         }
     }
 
