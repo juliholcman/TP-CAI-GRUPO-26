@@ -18,7 +18,7 @@ public class ConflictExceptionHandler : IExceptionHandler
         await context.Response.WriteAsJsonAsync(new
         {
             type = "https://tools.ietf.org/html/rfc7231#section-6.5.8",
-            title = "Conflict",
+            title = "Conflicto",
             status = 409,
             detail = "El recurso no pudo ser procesado por un conflicto.",
             instance = context.Request.Path.Value,

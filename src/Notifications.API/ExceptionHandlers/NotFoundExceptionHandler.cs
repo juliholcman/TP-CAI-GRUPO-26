@@ -25,7 +25,7 @@ namespace Notifications.API.ExceptionHandlers
             var problemDetails = new
             {
                 type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-                title = "Not Found",
+                title = "Recurso no encontrado",
                 status = 404,
                 detail = "El recurso solicitado no fue encontrado.",
                 instance = context.Request.Path.Value,

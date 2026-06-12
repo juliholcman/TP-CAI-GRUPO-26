@@ -100,13 +100,17 @@ public class ProductService
 
     private static void ValidateProductData(string nombre, decimal precio, int stock, string categoria)
     {
-        if (string.IsNullOrWhiteSpace(nombre)
-            || precio <= 0
-            || stock < 0
-            || string.IsNullOrWhiteSpace(categoria))
-        {
-            throw new ValidationException("PRD-002", "Los datos del producto son inválidos.");
-        }
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new ValidationException("PRD-002", "El nombre del producto es obligatorio.");
+
+        if (precio <= 0)
+            throw new ValidationException("PRD-002", "El precio del producto debe ser mayor que cero.");
+
+        if (stock < 0)
+            throw new ValidationException("PRD-002", "El stock del producto no puede ser negativo.");
+
+        if (string.IsNullOrWhiteSpace(categoria))
+            throw new ValidationException("PRD-002", "La categoría del producto es obligatoria.");
     }
 
     private static ProductResponse ToResponse(Product product)

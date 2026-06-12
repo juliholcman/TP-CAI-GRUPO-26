@@ -44,7 +44,7 @@ public class CartService
     {
         if (request.Cantidad <= 0)
         {
-            throw new ValidationException("CRT-004", "Cantidad inválida.");
+            throw new ValidationException("CRT-004", "La cantidad debe ser mayor que cero.");
         }
 
         // Validate product exists in Products API and check stock
@@ -69,7 +69,7 @@ public class CartService
 
         if (totalNewQuantity > product.Stock)
         {
-            throw new BusinessRuleException("CRT-003", "Stock insuficiente para agregar al carrito.");
+            throw new BusinessRuleException("CRT-003", "No hay stock suficiente para agregar la cantidad solicitada al carrito.");
         }
 
         if (existingQty > 0)
@@ -98,7 +98,7 @@ public class CartService
     {
         if (request.Cantidad <= 0)
         {
-            throw new ValidationException("CRT-004", "Cantidad inválida.");
+            throw new ValidationException("CRT-004", "La cantidad debe ser mayor que cero.");
         }
 
         if (!await _cartRepository.CartExistsAsync(userId))
@@ -116,7 +116,7 @@ public class CartService
 
         if (request.Cantidad > product.Stock)
         {
-            throw new BusinessRuleException("CRT-003", "Stock insuficiente para agregar al carrito.");
+            throw new BusinessRuleException("CRT-003", "No hay stock suficiente para actualizar el producto a la cantidad solicitada.");
         }
 
         await _cartRepository.UpdateItemPriceAndQuantityAsync(userId, productId, request.Cantidad, product.Precio);
