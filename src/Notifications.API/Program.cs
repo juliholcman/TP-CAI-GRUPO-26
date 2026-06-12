@@ -21,11 +21,17 @@ builder.Services.AddControllers()
     {
         options.InvalidModelStateResponseFactory = context =>
         {
-            var firstError = context.ModelState
+            var allErrors = context.ModelState
                 .Where(e => e.Value?.Errors.Count > 0)
                 .SelectMany(e => e.Value!.Errors)
                 .Select(e => e.ErrorMessage)
-                .FirstOrDefault() ?? "Los datos de la solicitud son inválidos.";
+                .ToList();
+
+            var errorMessageStr = string.Join("; ", allErrors);
+            if (string.IsNullOrWhiteSpace(errorMessageStr)) 
+            {
+                errorMessageStr = "Los datos de la notificación son inválidos.";
+            }
 
             var correlationId = context.HttpContext.Response.Headers["X-Correlation-Id"].FirstOrDefault()
                              ?? context.HttpContext.Request.Headers["X-Correlation-Id"].FirstOrDefault()
@@ -40,7 +46,7 @@ builder.Services.AddControllers()
                 instance = context.HttpContext.Request.Path.Value,
                 correlationId,
                 errorCode = "NTF-002",
-                errorMessage = firstError
+                errorMessage = errorMessageStr
             };
 
             return new BadRequestObjectResult(problem);
