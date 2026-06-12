@@ -84,28 +84,39 @@ Notificaciones  -> src/Notifications.API/
 
 La solución adopta una arquitectura de **microservicios independientes**: cada servicio tiene su propia base de datos SQLite, expone una REST API en .NET 9 y se comunica con otros servicios exclusivamente por HTTP.
 
-![Diagrama de arquitectura de microservicios](docs/architecture/diagrama-cai.png)
+```
+╔══════════════════════════════════════════════════════════════════════════════════════════╗
+║            Arquitectura de Microservicios — TP CAI E-Commerce                           ║
+╚══════════════════════════════════════════════════════════════════════════════════════════╝
 
-### Cómo leer el diagrama
+ Comunicaciones HTTP entre microservicios (··> = llamada HTTP):
+ ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+ Notifications.API ·····················································> Users.API
+                                                     Valida usuario destinatario
 
-- **Cajas rectangulares** → cada microservicio (REST API independiente).
-- **Cilindros** → base de datos propia de cada servicio (SQLite).
-- **Flecha sólida vertical** (API → DB) → el servicio guarda/lee datos en su propia base de datos.
-- **Flecha punteada horizontal** → comunicación HTTP entre servicios. Cada flecha está en un nivel distinto (escalera) para que el origen y destino sean fáciles de distinguir.
+ Cart.API ··········································> Products.API
+                                  Valida producto y stock
 
-### Comunicaciones HTTP entre servicios
+ Orders.API ···················> Users.API
+                 Valida usuario
 
-Las flechas punteadas se dibujan de arriba hacia abajo en este orden:
+ Orders.API ········> Products.API
+     Valida productos, stock y precio
+ ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 
-| Nivel | Origen | Destino | Propósito |
-|---|---|---|---|
-| 1 (más alto) | Notifications.API | Users.API | Valida usuario destinatario |
-| 2 | Cart.API | Products.API | Valida producto y stock |
-| 3 | Orders.API | Users.API | Valida usuario |
-| 4 (más bajo) | Orders.API | Products.API | Valida productos, stock y precio |
+ Microservicios y persistencia propia (-> = guarda/lee en su base de datos):
 
-> `Orders.API` **no llama** a `Notifications.API` en la implementación actual; esa flecha no está en el diagrama.
+ ┌─────────────┐  ┌──────────────┐  ┌─────────────┐  ┌───────────┐  ┌────────────────────┐
+ │  Users.API  │  │ Products.API │  │ Orders.API  │  │ Cart.API  │  │  Notifications.API │
+ └──────┬──────┘  └──────┬───────┘  └──────┬──────┘  └─────┬─────┘  └─────────┬──────────┘
+        │                │                  │               │                   │
+        ▼                ▼                  ▼               ▼                   ▼
+   ┌──────────┐  ┌─────────────┐  ┌────────────┐  ┌──────────┐  ┌──────────────────┐
+   │ users.db │  │ products.db │  │ orders.db  │  │ cart.db  │  │ notifications.db │
+   └──────────┘  └─────────────┘  └────────────┘  └──────────┘  └──────────────────┘
 
-### Tecnologías transversales
+ Nota: Orders.API no llama a Notifications.API en la implementacion actual.
 
-Todos los microservicios comparten: **.NET Web API · SQLite + Dapper · Swagger/OpenAPI · Health Checks · Serilog · Correlation ID**
+ Tecnologias transversales:
+ .NET Web API · SQLite + Dapper · Swagger/OpenAPI · Health Checks · Serilog · Correlation ID
+```
