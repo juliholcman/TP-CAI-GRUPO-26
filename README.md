@@ -45,14 +45,22 @@ bash /tmp/dotnet-install.sh --channel 9.0 --install-dir "$HOME/.dotnet" --archit
 Comandos utiles:
 
 ```bash
-./scripts/project.sh restore
-./scripts/project.sh build
-./scripts/project.sh run Products.API
-./scripts/project.sh run Users.API
-./scripts/project.sh run Orders.API
-./scripts/project.sh run Cart.API
-./scripts/project.sh run Notifications.API
+./project.sh restore
+./project.sh build
+./project.sh run Products.API
+./project.sh run Users.API
+./project.sh run Orders.API
+./project.sh run Cart.API
+./project.sh run Notifications.API
 ```
+
+## Correr todas las APIs
+
+```bash
+./project.sh
+```
+
+Este comando compila la solucion y levanta las cinco APIs independientes en conjunto para facilitar el testing y las demos. No las unifica en una sola API. Presiona `Ctrl+C` para detener todos los procesos.
 
 Tambien se puede usar `dotnet` directamente:
 
