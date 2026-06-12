@@ -5,13 +5,13 @@ const path = require('path');
 const targetApi = process.argv[2];
 
 if (!targetApi) {
-    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users\nnode run_qa.js cart\nnode run_qa.js notifications");
+    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users\nnode run_qa.js cart\nnode run_qa.js notifications\nnode run_qa.js orders");
     process.exit(1);
 }
 
-if (targetApi !== 'products' && targetApi !== 'users' && targetApi !== 'cart' && targetApi !== 'notifications') {
-    console.log("Por ahora solo está soportado: products, users, cart, notifications");
-    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users\nnode run_qa.js cart\nnode run_qa.js notifications");
+if (targetApi !== 'products' && targetApi !== 'users' && targetApi !== 'cart' && targetApi !== 'notifications' && targetApi !== 'orders') {
+    console.log("Por ahora solo está soportado: products, users, cart, notifications, orders");
+    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users\nnode run_qa.js cart\nnode run_qa.js notifications\nnode run_qa.js orders");
     process.exit(1);
 }
 
@@ -35,6 +35,11 @@ const config = {
         name: 'Notifications.API',
         swaggerUrl: 'https://localhost:61010/swagger/index.html',
         docsPath: '../docs/notifications'
+    },
+    orders: {
+        name: 'Orders.API',
+        swaggerUrl: 'https://localhost:61014/swagger/index.html',
+        docsPath: '../docs/orders'
     }
 };
 
@@ -624,6 +629,184 @@ async function runNotifications(page) {
     await closeEndpoint(page, selGetByUser);
 }
 
+async function runOrders(page) {
+    const uniqueId = Date.now();
+
+    // Orders.API usa un stub interno de usuarios y productos. Usamos IDs válidos conocidos.
+    const userId = 'a1b2c3d4-0000-0000-0000-111122223333';
+    const productId = 'b69b109d-9c5c-4f68-9942-a0ba2f4710b1';
+    console.log(`Usando User ID del stub interno: ${userId}`);
+    console.log(`Usando Product ID del stub interno: ${productId}`);
+
+    const invalidUserId = '22222222-2222-2222-2222-222222222222';
+    const invalidProductId = '22222222-2222-2222-2222-222222222222';
+    const invalidOrderId = '22222222-2222-2222-2222-222222222222';
+
+    const selPostOrder = '#operations-Orders-post_api_Orders';
+    const selGetOrders = '#operations-Orders-get_api_Orders';
+    const selGetOrderById = '#operations-Orders-get_api_Orders__id_';
+    const selPutStatus = '#operations-Orders-put_api_Orders__id__status';
+
+    // ── A. POST /api/Orders válido ──
+    console.log('A. POST /api/Orders válido');
+    await openEndpoint(page, selPostOrder);
+    await clearTextArea(page, `${selPostOrder} .body-param__text`);
+    const validOrder = {
+        "usuarioId": userId,
+        "items": [
+            {
+                "productoId": productId,
+                "cantidad": 1
+            }
+        ]
+    };
+    await page.type(`${selPostOrder} .body-param__text`, JSON.stringify(validOrder, null, 2));
+    let executeBtn = await page.$(`${selPostOrder} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostOrder, 'screenshots/create-order-201.png');
+
+    // Extract orderId
+    const responseText = await page.$eval(`${selPostOrder} .responses-table .highlight-code`, el => el.innerText);
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    let createdOrderId = '';
+    if (jsonMatch) {
+        try {
+            const parsed = JSON.parse(jsonMatch[0]);
+            createdOrderId = parsed.id;
+            console.log(`Created Order ID: ${createdOrderId}`);
+        } catch (e) {
+            console.error('Could not parse JSON', jsonMatch[0]);
+        }
+    }
+    await closeEndpoint(page, selPostOrder);
+    if (!createdOrderId) throw new Error('Failed to create order, cannot continue');
+
+    // ── B. GET /api/Orders ──
+    console.log('B. GET /api/Orders');
+    await openEndpoint(page, selGetOrders);
+    executeBtn = await page.$(`${selGetOrders} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selGetOrders, 'screenshots/get-all-200.png');
+    await closeEndpoint(page, selGetOrders);
+
+    // ── C. GET /api/Orders/{id} ──
+    console.log('C. GET /api/Orders/{id}');
+    await openEndpoint(page, selGetOrderById);
+    await clearAndTypeInput(page, `${selGetOrderById} input[placeholder="id"]`, createdOrderId);
+    executeBtn = await page.$(`${selGetOrderById} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selGetOrderById, 'screenshots/get-by-id-200.png');
+    await closeEndpoint(page, selGetOrderById);
+
+    // ── D. GET /api/Orders?usuarioId={userId} ──
+    console.log('D. GET /api/Orders?usuarioId={userId}');
+    await openEndpoint(page, selGetOrders);
+    await clearAndTypeInput(page, `${selGetOrders} input[placeholder="usuarioId"]`, userId);
+    executeBtn = await page.$(`${selGetOrders} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selGetOrders, 'screenshots/get-by-user-200.png');
+    // clean input for future requests
+    await clearAndTypeInput(page, `${selGetOrders} input[placeholder="usuarioId"]`, '');
+    await closeEndpoint(page, selGetOrders);
+
+    // ── E. PUT /api/Orders/{id}/status ──
+    console.log('E. PUT /api/Orders/{id}/status');
+    await openEndpoint(page, selPutStatus);
+    await clearAndTypeInput(page, `${selPutStatus} input[placeholder="id"]`, createdOrderId);
+    await clearTextArea(page, `${selPutStatus} .body-param__text`);
+    const updateStatus = { "estado": "Confirmada" };
+    await page.type(`${selPutStatus} .body-param__text`, JSON.stringify(updateStatus, null, 2));
+    executeBtn = await page.$(`${selPutStatus} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPutStatus, 'screenshots/update-status-200.png');
+    await closeEndpoint(page, selPutStatus);
+
+    // ── F. GET orden inexistente ──
+    console.log('F. GET orden inexistente (ORD-001)');
+    await openEndpoint(page, selGetOrderById);
+    await clearAndTypeInput(page, `${selGetOrderById} input[placeholder="id"]`, invalidOrderId);
+    executeBtn = await page.$(`${selGetOrderById} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selGetOrderById, 'errors/ord-001-order-not-found.png');
+    await closeEndpoint(page, selGetOrderById);
+
+    // ── G. POST orden inválida con items vacío ──
+    console.log('G. POST orden inválida con items vacío (ORD-002)');
+    await openEndpoint(page, selPostOrder);
+    await clearTextArea(page, `${selPostOrder} .body-param__text`);
+    const emptyItemsOrder = { "usuarioId": userId, "items": [] };
+    await page.type(`${selPostOrder} .body-param__text`, JSON.stringify(emptyItemsOrder, null, 2));
+    executeBtn = await page.$(`${selPostOrder} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostOrder, 'errors/ord-002-invalid-data.png');
+    await closeEndpoint(page, selPostOrder);
+
+    // ── H. POST usuario inexistente ──
+    console.log('H. POST usuario inexistente (ORD-003)');
+    await openEndpoint(page, selPostOrder);
+    await clearTextArea(page, `${selPostOrder} .body-param__text`);
+    const userNotFoundOrder = {
+        "usuarioId": invalidUserId,
+        "items": [{ "productoId": productId, "cantidad": 1 }]
+    };
+    await page.type(`${selPostOrder} .body-param__text`, JSON.stringify(userNotFoundOrder, null, 2));
+    executeBtn = await page.$(`${selPostOrder} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostOrder, 'errors/ord-003-user-not-found.png');
+    await closeEndpoint(page, selPostOrder);
+
+    // ── I. POST producto inexistente ──
+    console.log('I. POST producto inexistente (ORD-004)');
+    await openEndpoint(page, selPostOrder);
+    await clearTextArea(page, `${selPostOrder} .body-param__text`);
+    const productNotFoundOrder = {
+        "usuarioId": userId,
+        "items": [{ "productoId": invalidProductId, "cantidad": 1 }]
+    };
+    await page.type(`${selPostOrder} .body-param__text`, JSON.stringify(productNotFoundOrder, null, 2));
+    executeBtn = await page.$(`${selPostOrder} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostOrder, 'errors/ord-004-product-not-found.png');
+    await closeEndpoint(page, selPostOrder);
+
+    // ── J. POST stock insuficiente ──
+    console.log('J. POST stock insuficiente (ORD-005)');
+    await openEndpoint(page, selPostOrder);
+    await clearTextArea(page, `${selPostOrder} .body-param__text`);
+    const outOfStockOrder = {
+        "usuarioId": userId,
+        "items": [{ "productoId": productId, "cantidad": 9999 }]
+    };
+    await page.type(`${selPostOrder} .body-param__text`, JSON.stringify(outOfStockOrder, null, 2));
+    executeBtn = await page.$(`${selPostOrder} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostOrder, 'errors/ord-005-insufficient-stock.png');
+    await closeEndpoint(page, selPostOrder);
+
+    // ── K. PUT transición inválida ──
+    console.log('K. PUT transición inválida (ORD-006)');
+    await openEndpoint(page, selPutStatus);
+    await clearAndTypeInput(page, `${selPutStatus} input[placeholder="id"]`, createdOrderId);
+    await clearTextArea(page, `${selPutStatus} .body-param__text`);
+    const invalidStatus = { "estado": "Pendiente" }; // estaba en Confirmada
+    await page.type(`${selPutStatus} .body-param__text`, JSON.stringify(invalidStatus, null, 2));
+    executeBtn = await page.$(`${selPutStatus} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPutStatus, 'errors/ord-006-invalid-transition.png');
+    await closeEndpoint(page, selPutStatus);
+}
+
 async function run() {
     console.log('Launching browser...');
     const browser = await puppeteer.launch({
@@ -652,6 +835,8 @@ async function run() {
             await runCart(page);
         } else if (targetApi === 'notifications') {
             await runNotifications(page);
+        } else if (targetApi === 'orders') {
+            await runOrders(page);
         }
     } catch (err) {
         console.error('Error during execution:', err);
