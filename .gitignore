@@ -10,3 +10,6 @@ obj/
 *.db
 *.db-shm
 *.db-wal
+
+node_modules/
+qa-automation/node_modules/
