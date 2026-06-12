@@ -5,13 +5,13 @@ const path = require('path');
 const targetApi = process.argv[2];
 
 if (!targetApi) {
-    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users\nnode run_qa.js cart");
+    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users\nnode run_qa.js cart\nnode run_qa.js notifications");
     process.exit(1);
 }
 
-if (targetApi !== 'products' && targetApi !== 'users' && targetApi !== 'cart') {
-    console.log("Por ahora solo está soportado: products, users, cart");
-    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users\nnode run_qa.js cart");
+if (targetApi !== 'products' && targetApi !== 'users' && targetApi !== 'cart' && targetApi !== 'notifications') {
+    console.log("Por ahora solo está soportado: products, users, cart, notifications");
+    console.log("Uso:\nnode run_qa.js products\nnode run_qa.js users\nnode run_qa.js cart\nnode run_qa.js notifications");
     process.exit(1);
 }
 
@@ -30,6 +30,11 @@ const config = {
         name: 'Cart.API',
         swaggerUrl: 'https://localhost:61016/swagger/index.html',
         docsPath: '../docs/cart'
+    },
+    notifications: {
+        name: 'Notifications.API',
+        swaggerUrl: 'https://localhost:61010/swagger/index.html',
+        docsPath: '../docs/notifications'
     }
 };
 
@@ -519,6 +524,106 @@ async function runCart(page) {
     await closeEndpoint(page, selPostItem);
 }
 
+async function runNotifications(page) {
+    const uniqueId = Date.now();
+    
+    // Notifications.API usa un stub interno de usuarios. Usamos un ID válido conocido.
+    let userId = '00000000-0000-0000-0000-000000000001';
+    console.log(`Usando User ID del stub interno: ${userId}`);
+
+    // GUID con formato válido pero inexistente en el stub (para NTF-001)
+    const invalidUserId = '22222222-2222-2222-2222-222222222222';
+    // GUID válido del stub pero que no tiene notificaciones aún (para NTF-003)
+    const missingUserId = '00000000-0000-0000-0000-000000000002';
+
+    const selPostSend = '#operations-Notifications-post_api_Notifications_send';
+    const selGetByUser = '#operations-Notifications-get_api_Notifications__userId_';
+
+    // ── A. POST /api/Notifications/send válido ──
+    console.log('A. POST /api/Notifications/send válido');
+    await openEndpoint(page, selPostSend);
+    await clearTextArea(page, `${selPostSend} .body-param__text`);
+    const validNotification = {
+        "usuarioId": userId,
+        "mensaje": "Notificación QA creada desde Swagger",
+        "tipo": "Email"
+    };
+    await page.type(`${selPostSend} .body-param__text`, JSON.stringify(validNotification, null, 2));
+    let executeBtn = await page.$(`${selPostSend} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostSend, 'screenshots/send-201.png');
+    await closeEndpoint(page, selPostSend);
+
+    // ── B. GET /api/Notifications/{userId} ──
+    console.log('B. GET /api/Notifications/{userId}');
+    await openEndpoint(page, selGetByUser);
+    await clearAndTypeInput(page, `${selGetByUser} input[placeholder="userId"]`, userId);
+    executeBtn = await page.$(`${selGetByUser} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selGetByUser, 'screenshots/get-by-user-200.png');
+    await closeEndpoint(page, selGetByUser);
+
+    // ── C. POST usuario inexistente (NTF-001) ──
+    console.log('C. POST usuario inexistente (NTF-001)');
+    await openEndpoint(page, selPostSend);
+    await clearTextArea(page, `${selPostSend} .body-param__text`);
+    const userNotFoundNotification = {
+        "usuarioId": invalidUserId,
+        "mensaje": "Notificación con usuario inexistente",
+        "tipo": "Email"
+    };
+    await page.type(`${selPostSend} .body-param__text`, JSON.stringify(userNotFoundNotification, null, 2));
+    executeBtn = await page.$(`${selPostSend} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostSend, 'errors/ntf-001-user-not-found.png');
+    await closeEndpoint(page, selPostSend);
+
+    // ── D. POST request inválido (NTF-002) ──
+    console.log('D. POST request inválido (NTF-002)');
+    await openEndpoint(page, selPostSend);
+    await clearTextArea(page, `${selPostSend} .body-param__text`);
+    const invalidDataNotification = {
+        "usuarioId": userId,
+        "mensaje": "",
+        "tipo": "Email"
+    };
+    await page.type(`${selPostSend} .body-param__text`, JSON.stringify(invalidDataNotification, null, 2));
+    executeBtn = await page.$(`${selPostSend} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostSend, 'errors/ntf-002-invalid-data.png');
+    await closeEndpoint(page, selPostSend);
+
+    // ── E. POST tipo inválido (NTF-002) ──
+    console.log('E. POST tipo inválido (NTF-002)');
+    await openEndpoint(page, selPostSend);
+    await clearTextArea(page, `${selPostSend} .body-param__text`);
+    const invalidTypeNotification = {
+        "usuarioId": userId,
+        "mensaje": "Mensaje con tipo inválido",
+        "tipo": "Paloma"
+    };
+    await page.type(`${selPostSend} .body-param__text`, JSON.stringify(invalidTypeNotification, null, 2));
+    executeBtn = await page.$(`${selPostSend} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selPostSend, 'errors/ntf-002-invalid-type.png');
+    await closeEndpoint(page, selPostSend);
+
+    // ── F. GET usuario sin notificaciones (NTF-003) ──
+    console.log('F. GET usuario sin notificaciones (NTF-003)');
+    await openEndpoint(page, selGetByUser);
+    await clearAndTypeInput(page, `${selGetByUser} input[placeholder="userId"]`, missingUserId);
+    executeBtn = await page.$(`${selGetByUser} .execute`);
+    await executeBtn.click();
+    await delay(2000);
+    await takeElementScreenshot(page, selGetByUser, 'errors/ntf-003-notifications-not-found.png');
+    await closeEndpoint(page, selGetByUser);
+}
+
 async function run() {
     console.log('Launching browser...');
     const browser = await puppeteer.launch({
@@ -545,6 +650,8 @@ async function run() {
             await runUsers(page);
         } else if (targetApi === 'cart') {
             await runCart(page);
+        } else if (targetApi === 'notifications') {
+            await runNotifications(page);
         }
     } catch (err) {
         console.error('Error during execution:', err);
